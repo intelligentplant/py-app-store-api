@@ -1,0 +1,12 @@
+{
+  "app": {
+    "id": "[app id]",
+    "secret": "[app secret]"
+  },
+  "app_store": {
+    "base_url": "https://appstore.intelligentplant.com"
+  },
+  "data_core": {
+    "base_url": "https://appstore.intelligentplant.com/gestalt"
+  }
+}
