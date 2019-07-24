@@ -1,0 +1,93 @@
+"""A client app that takes that uses the implicit grant flow"""
+__author__ = "Ross Kelso"
+__docformat__ = 'reStructuredText'
+
+import json
+import urllib
+
+import requests
+import webview
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+import intelligent_plant.app_store_client as app_store_client
+
+import example.example_queries as example_queries
+
+#this url is authorised by the app, for this application it doesn't really matter
+#as the access token is read by reading fragment from the web view
+redirect_url = "https://www.intelligentplant.com"
+
+base_url = None
+
+def test_client(token):
+    """
+    Test that the app store and data core clients are working
+    :param token: The user's access token.
+    """
+    app_store = app_store_client.AppStoreClient(token, None, base_url = base_url)
+
+    example_queries.app_store_queries(app_store)
+
+    data_core = app_store.get_data_core_client(data_core_url)
+
+    #load the available datasources
+    data_sources = example_queries.data_source(data_core)
+
+    print(data_sources)
+
+    print("\n")
+
+    #load the available tags for the 1st loaded datasource
+    tags = example_queries.tag_search(data_core, data_sources[0]["Name"]["QualifiedName"])
+
+    print(tags)
+
+    print("\n")
+
+    #query some snapshot data
+    val = example_queries.snapshot(data_core, data_sources[0]["Name"]["QualifiedName"], tags[0]["Id"])
+
+    print(val)
+
+    #query historical data for a single tag
+    example_queries.plot_tag(data_core, data_sources[0]["Name"]["QualifiedName"], tags[0]["Id"])
+
+    #query historical data for multiple tags
+    example_queries.plot_tags(data_core, data_sources[0]["Name"]["QualifiedName"], list(map(lambda x: x["Id"], tags)))
+
+    plt.show()
+
+
+def on_loaded(window):
+    while True: #TODO: listening for an event would be better than this busy wait
+        url = window.get_current_url()
+
+        #check if the user has been redirected (i.e. logeed in)
+        if (url.startswith(redirect_url)):
+            window.destroy()
+            #get the access code from the current url
+            parsed = urllib.parse.urlparse(url)
+            print(parsed)
+            #test the app store and data core clients
+            test_client(urllib.parse.parse_qs(parsed.fragment)['access_token'][0])
+            break
+
+#load the json config file with the app information
+with open('config.json') as json_config_file:
+    config = json.load(json_config_file)
+
+    app_id = config['app']['id']
+    app_secret = config['app']['secret']
+    base_url = config['app_store']['base_url']
+    data_core_url = config['data_core']['base_url']
+
+    #generate the implicit grant flow url
+    url = app_store_client.get_implicit_grant_flow_url(app_id, redirect_url, ["UserInfo", "DataRead"], base_url = base_url)
+
+    #open a web view window with the appstore login
+    window = webview.create_window('Login', url)
+    webview.start(on_loaded, window)
+    
