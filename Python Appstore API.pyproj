@@ -4,8 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>cea4e09a-2aea-4ce8-a26e-bf704c46bf38</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>example\implicit_grant_flow.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -13,7 +12,7 @@
     <Name>Python Appstore API</Name>
     <RootNamespace>Python Appstore API</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
-    <InterpreterId>Global|PythonCore|3.7</InterpreterId>
+    <InterpreterId>CondaEnv|CondaEnv|App Store Client Example</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,20 +24,38 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="intelligent_plant\" />
+    <Folder Include="example\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="example\authorization_code_grant_flow.py" />
+    <Compile Include="example\example_queries.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="example\implicit_grant_flow.py" />
     <Compile Include="intelligent_plant\app_store_client.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="intelligent_plant\data_core_client.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="intelligent_plant\http_client.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="intelligent_plant\utility.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="intelligent_plant\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="setup.py" />
   </ItemGroup>
   <ItemGroup>
-    <InterpreterReference Include="Global|PythonCore|3.7" />
+    <InterpreterReference Include="CondaEnv|CondaEnv|App Store Client Example" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="config-example.json" />
+    <Content Include="config.json" />
+    <Content Include="requirements.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
