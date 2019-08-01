@@ -53,8 +53,8 @@
     <InterpreterReference Include="CondaEnv|CondaEnv|App Store Client Example" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="config-example.json" />
     <Content Include="config.json" />
+    <Content Include="config-example.json" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

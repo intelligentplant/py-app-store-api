@@ -42,7 +42,7 @@ class HttpClient(object):
         else:
             r.raise_for_status()
 
-    def post(self, path, params=None, data=None):
+    def post(self, path, params=None, data=None, json=None):
         """
         Make a POST request to the specified path (relative to the client base url), with the specified parameters
         :param path: The path to the target endpoint.
@@ -56,7 +56,7 @@ class HttpClient(object):
         :raises: :class:`HTTPError`, if one occurred.
         """
         url = urlparse.urljoin(self.base_url, path)
-        r = requests.post(url, data, params=params, headers=self.headers)
+        r = requests.post(url, data, params=params, headers=self.headers, json=json)
 
         if (r.status_code == requests.codes.ok):
             return r
@@ -107,7 +107,7 @@ class HttpClient(object):
         """
         return self.post(path, params=params, data=data).text
 
-    def post_json(self, url, params=None, data=None):
+    def post_json(self, url, params=None, data=None, json=None):
         """
         Make a POST request to the specified path (relative to the client base url), with the specified parameters
         This method returns parses the reponse body as JSON.
@@ -120,4 +120,4 @@ class HttpClient(object):
         :return: The parsed response JSON object
         :raises: :class:`HTTPError`, if one occurred.
         """
-        return self.post(url, params=params, data=data).json()
+        return self.post(url, params=params, data=data, json=json).json()

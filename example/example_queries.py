@@ -44,7 +44,7 @@ def tag_search(data_core, dsn):
     :return: The tags matching the search
     """
     #get the first page of tags from the provided data sourse fully qualified name
-    return data_core.get_tags(dsn)[0]["Tags"]
+    return data_core.get_tags(dsn)
 
 def plot_tag(data_core, dsn, tag):
     """
@@ -54,7 +54,7 @@ def plot_tag(data_core, dsn, tag):
     :param tag: The name of the tag that should be plotted.
     """
     #request some data
-    data = data_core.get_data(dsn, tag, "plot", "*-30d", "*", "1d")
+    data = data_core.get_plot_data({dsn: [tag]}, "*-30d", "*", 30)
     
     data_frame = utility.query_result_to_data_frame(data)
 
@@ -70,12 +70,12 @@ def plot_tags(data_core, dsn, tag_names):
     """
     #fetch the data for all the tags we found
     
-    data = data_core.get_data(dsn, tag_names, "plot", "*-30d", "*", "1d")
+    data = data_core.get_plot_data({dsn: tag_names}, "*-30d", "*", 30)
 
     data_frame = utility.query_result_to_data_frame(data)
     
     #plot the data frame
-    data_frame.plot(title="Lots of Data")
+    data_frame.plot(title="Lots of Data", legend=False)
 
 def snapshot(data_core, dsn, tag):
     """
@@ -85,4 +85,14 @@ def snapshot(data_core, dsn, tag):
     :param tag: The name of the tag to query.
     """
     #do a snapshot query
-    return data_core.get_data(dsn, tag, "now", points=1)
+    return data_core.get_snapshot_data({dsn: [tag]})
+
+def at_times(data_core, dsn, tags, times):
+    """
+    Get the value of the tags at the given time
+    :param data_core: A data core client instance
+    :param dsn: The fully qualified name of a data source
+    :param tags: A list of tag names
+    :param times: the list of times to fetch values for.
+    """
+    return data_core.get_data_at_times({dsn: tags}, times)
