@@ -2,7 +2,7 @@
 .vs/
 
 #don't include the config
-test/config.json
+config.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
