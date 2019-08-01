@@ -54,11 +54,10 @@ class DataCoreClient(http_client.HttpClient):
         :raises: An exception if JSON decoding fails.
         """
         params = filters.copy()
-        params["dsn"] = dsn
         params["page"] = page
         params["pageSize"] = page_size
         
-        return self.get_json("api/data/tags", params)
+        return self.get_json("api/data/tags/" + dsn, params)
 
     def get_data(self, dsn, tags, function, start=None, end=None, step=None, points=None, annotations=False):
         """
