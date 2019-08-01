@@ -1,4 +1,4 @@
-"""A client app that takes that uses the implicit grant flow"""
+"""A client app that uses the implicit grant flow"""
 __author__ = "Ross Kelso"
 __docformat__ = 'reStructuredText'
 
@@ -40,23 +40,30 @@ def test_client(token):
 
     print("\n")
 
+    dsn = "IP Datasource 2"
+
     #load the available tags for the 1st loaded datasource
-    tags = example_queries.tag_search(data_core, data_sources[0]["Name"]["QualifiedName"])
+    tags = example_queries.tag_search(data_core, dsn)
 
     print(tags)
 
     print("\n")
 
     #query some snapshot data
-    val = example_queries.snapshot(data_core, data_sources[0]["Name"]["QualifiedName"], tags[0]["Id"])
+    val = example_queries.snapshot(data_core, dsn, tags[0]["Id"])
 
     print(val)
 
     #query historical data for a single tag
-    example_queries.plot_tag(data_core, data_sources[0]["Name"]["QualifiedName"], tags[0]["Id"])
+    example_queries.plot_tag(data_core, dsn, tags[0]["Id"])
 
     #query historical data for multiple tags
-    example_queries.plot_tags(data_core, data_sources[0]["Name"]["QualifiedName"], list(map(lambda x: x["Id"], tags)))
+    example_queries.plot_tags(data_core, dsn, list(map(lambda x: x["Id"], tags)))
+
+    #get the values at specific times
+    times = example_queries.at_times(data_core, dsn, list(map(lambda x: x["Id"], tags)), ["2019-07-06T19:50:36.0113792Z"])
+
+    print(times)
 
     plt.show()
 

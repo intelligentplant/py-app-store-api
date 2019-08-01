@@ -4,9 +4,7 @@ __docformat__ = 'reStructuredText'
 
 import urllib.parse as urlparse
 
-import httplib2
 import json
-h = httplib2.Http(".cache")
 
 import intelligent_plant.http_client as http_client
 
@@ -59,99 +57,100 @@ class DataCoreClient(http_client.HttpClient):
         
         return self.get_json("api/data/tags/" + dsn, params)
 
-    def get_data(self, dsn, tags, function, start=None, end=None, step=None, points=None, annotations=False):
+    def get_snapshot_data(self, tags):
         """
-        Perform a data query on a specific data source.
+        Get the snapshot values of the provided tags.
 
-        :param dsn: The fully qualified name of the data source. seealso::get_data_sources
-        :param tags: A list of tag names to get data for.
-        :param function: The data function to use for the request ("now", "plot", "interp", "max", "min" "avg" or "raw")
-        :param start: The start time of the data query. Can be relative (e.g. "*-30d") or absolute (01/01/2019) (required if function isn't "now")
-        :param end: The end time of the data query. Can be relative (e.g. "*-30d") or absolute (01/01/2019) (required if function isn't "now")
-        :param step: The size of a data interval (e.g. "1d", "10m", "30s") this or points required.
-        :param points: The number of data points or samples to return this or step is required.
-        :param annotations: Whether annotations should be included. Default: False.
+        :param tags: A dictionary where the keys are the fully qualified data source names and the values are lists of tags.
 
-        :return: The values of the specified tags, over the specified time range.
+        :return: A dictionary of data source names, containg dictionarys of tag names whos values are tag values.
         :raises: :class:`HTTPError`, if one occurred.
         :raises: An exception if JSON decoding fails.
         """
+        return self.post_json("api/data/v2/snapshot", json={"tags": tags})
 
-        params = {
-            "tag": tags,
-            "function": function,
-            "start": start,
-            "end": end,
-            "step": step,
-            "points": points
+    def get_raw_data(self, tags, start_time, end_time, point_count):
+        """
+        Get raw data for the provided tags.
+
+        :param tags: A dictionary where the keys are the fully qualified data source names and the values are lists of tags.
+        :param start_time: The absolute or relative quiery start time.
+        :param end_time: The absolute or relative quiery end time.
+        :param point_count: The maximum number of point to return. Set to 0 for as many as possible.
+
+        :return: A dictionary of data source names, containg dictionarys of tag names whos values are historical tag values.
+        :raises: :class:`HTTPError`, if one occurred.
+        :raises: An exception if JSON decoding fails.
+        """
+        req = {
+            "tags": tags,
+            "startTime": start_time,
+            "endTime": end_time,
+            "pointCount": point_count
         }
 
-        #optinally include annotations
-        if (annotations):
-            params["annotations"] = "true"
+        return self.post_json("api/data/v2/raw", json=req)
 
-        return self.get_json("api/data/values/" + dsn, params)
-
-    def get_data_multi_data_source(self, dsns, tags, function, start, end, step=None, points=None, annotations=False):
+    def get_plot_data(self, tags, start_time, end_time, intervals):
         """
-        Perform a data query on a multiple data sources simulataneously.
+        Get raw data for the provided tags.
 
-        :param dsns: A list of the fully qualified name of the data sources. seealso::get_data_sources
-        :param tags: A list of tag names to get data for.
+        :param tags: A dictionary where the keys are the fully qualified data source names and the values are lists of tags.
+        :param start_time: The absolute or relative quiery start time.
+        :param end_time: The absolute or relative quiery end time.
+        :param intervals: How many intervals to divide the rtequest range into. Must be greater than 0
 
-        The size of tags and dsns must match as the each tag will be queried on the data source in the corresponding dnns index.
-
-        :param function: The data function to use for the request ("now", "plot", "interp", "max", "min" "avg" or "raw")
-        :param start: The start time of the data query. Can be relative (e.g. "*-30d") or absolute (01/01/2019) (required if function isn't "now")
-        :param end: The end time of the data query. Can be relative (e.g. "*-30d") or absolute (01/01/2019) (required if function isn't "now")
-        :param step: The size of a data interval (e.g. "1d", "10m", "30s") this or points required.
-        :param points: The number of data points or samples to return this or step is required.
-        :param annotations: Whether annotations should be included. Default: False.
-
-        :return: The values of the specified tags, over the specified time range.
-        Note: due to how requests formats parameters with multiple values this uses an alternate library
+        :return: A dictionary of data source names, containg dictionarys of tag names whos values are historical tag values.
+        :raises: :class:`HTTPError`, if one occurred.
+        :raises: An exception if JSON decoding fails.
         """
-        url = self.base_url + "/api/data/values"
-
-        #if datasource and tags are not list make them lists with 1 item
-        dsns = dsns if type(dsns) is list else [dsns]
-        tags = tags if type(tags) is list else [tags]
-
-        if len(dsns) != len(tags):
-            raise Exception("There must be a data source for each tag")
-
-        params = {
-            "function": function,
-            "start": start,
-            "end": end,
-            "step": step,
-            "points": points
+        req = {
+            "tags": tags,
+            "startTime": start_time,
+            "endTime": end_time,
+            "intervals": intervals
         }
 
-        #optinally include annotations
-        if (annotations):
-            params["annotations"] = "true"
-        
-        #add the none list parameters to the url
-        url_parts = list(urlparse.urlparse(url))
-        url_parts[4] = urlparse.urlencode({k: v for k, v in params.items() if v is not None})
-        url = urlparse.urlunparse(url_parts)
+        return self.post_json("api/data/v2/plot", json=req)
 
-        #add tlist parameters to the url
-        for num, dsn in enumerate(dsns, start=0):
-            url += "&dsn[" + str(num) + "]=" + urlparse.quote(dsn)
+    def get_processed_data(self, tags, start_time, end_time, sample_interval, data_function):
+        """
+        Get processed data for the provided tags.
 
-        for num, tag in enumerate(tags, start=0):
-            url += "&tag[" + str(num) + "]=" + urlparse.quote(tag)
+        :param tags: A dictionary where the keys are the fully qualified data source names and the values are lists of tags.
+        :param start_time: The absolute or relative quiery start time.
+        :param end_time: The absolute or relative quiery end time.
+        :param sample_interval: The length of a sample interval
+        :param data_function: The data function to use. Normal values are "interp", "avg", "min" and "max"
 
-        if params != None:
-            add_query_to_url(url, params)
+        :return: A dictionary of data source names, containg dictionarys of tag names whos values are historical tag values.
+        :raises: :class:`HTTPError`, if one occurred.
+        :raises: An exception if JSON decoding fails.
+        """
+        req = {
+            "tags": tags,
+            "startTime": start_time,
+            "endTime": end_time,
+            "sampleInterval": sample_interval,
+            "dataFunction": data_function
+        }
 
-        resp, content = h.request(url, "GET", headers=self.headers)
+        return self.post_json("api/data/v2/processed", json=req)
 
-        if resp.status == 200:
-            #success
-            return json.loads(content)
-        else:
-            #handle the error
-            raise Exception((resp, content))
+    def get_data_at_times(self, tags, utc_sample_times):
+        """
+        Get the value of the provided tags at the specified times.
+
+        :param tags: A dictionary where the keys are the fully qualified data source names and the values are lists of tags.
+        :param utc_sample_times: The time stamps to retrieve the values for,
+
+        :return: A dictionary of data source names, containg dictionarys of tag names whos values are historical tag values.
+        :raises: :class:`HTTPError`, if one occurred.
+        :raises: An exception if JSON decoding fails.
+        """
+        req = {
+            "tags": tags,
+            "utcSampleTimes": utc_sample_times
+        }
+
+        return self.post_json("api/data/v2/history-at-times", json=req)

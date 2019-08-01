@@ -16,17 +16,18 @@ def query_result_to_data_frame(result):
        :return: A data frame with the queried tags as column headers and a row for each data point returned.
     """
     frame_data = {}
+    for dsn in result:
+        #put the data data each tag into the data frame
+        for tag in result[dsn].items():
+            tag = tag[1]
+            name = dsn + " " + tag["TagName"]
 
-    #put the data from each tag into the data frame
-    for tag in result:
-        name = tag["tagName"]
+            is_numeric = reduce(lambda x, y: x and y["IsNumeric"], tag["Values"], True)
+            if (is_numeric):
+                values = list(map(lambda x: x["NumericValue"], tag["Values"]))
+            else:
+                values = list(map(lambda x: x["TextValue"], tag["Values"]))
 
-        is_numeric = reduce(lambda x, y: y and (not math.isnan(x)) and math.isfinite(x), tag["tagData"], True)
-        if (is_numeric):
-            values = tag["tagData"]
-        else:
-            values = tag["tagStringValues"]
-
-        frame_data[name] = values
+            frame_data[name] = values
 
     return pd.DataFrame(frame_data)
