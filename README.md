@@ -7,15 +7,17 @@ See the example folder for example on how to use the library for authorization c
 
 ### Installing using pip
 
-`pip install git+https://github.com/intelligentplant/py-app-store-api`
+`pip install intelligent-plant`
 
 ### Installing from Source
 
-Clone the Git repo:
+Using pip:
+
+`pip install git+https://github.com/intelligentplant/py-app-store-api`
+
+Alternatively clone the Git repo:
 
 `git clone https://github.com/intelligentplant/py-app-store-api.git`
-
-We recommend creating a python virtual environment but it isn't required.
 
 To install necessary dependancies run:
 
