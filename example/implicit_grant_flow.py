@@ -65,8 +65,6 @@ def test_client(token):
 
     print(times)
 
-    plt.show()
-
 
 def on_loaded(window):
     while True: #TODO: listening for an event would be better than this busy wait
