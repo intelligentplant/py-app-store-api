@@ -8,6 +8,13 @@ import json
 
 import intelligent_plant.http_client as http_client
 
+def normalise_tag_map(tags):
+    for entry in tags.items():
+        if isinstance(entry[1], str):
+            tags[entry[0]] = [entry[1]]
+
+    return tags
+
 class DataCoreClient(http_client.HttpClient):
     """Access the Intelligent Plant Data Core API"""
 
@@ -67,7 +74,7 @@ class DataCoreClient(http_client.HttpClient):
         :raises: :class:`HTTPError`, if one occurred.
         :raises: An exception if JSON decoding fails.
         """
-        return self.post_json("api/data/v2/snapshot", json={"tags": tags})
+        return self.post_json("api/data/v2/snapshot", json={"tags": normalise_tag_map(tags)})
 
     def get_raw_data(self, tags, start_time, end_time, point_count):
         """
@@ -83,7 +90,7 @@ class DataCoreClient(http_client.HttpClient):
         :raises: An exception if JSON decoding fails.
         """
         req = {
-            "tags": tags,
+            "tags": normalise_tag_map(tags),
             "startTime": start_time,
             "endTime": end_time,
             "pointCount": point_count
@@ -105,7 +112,7 @@ class DataCoreClient(http_client.HttpClient):
         :raises: An exception if JSON decoding fails.
         """
         req = {
-            "tags": tags,
+            "tags": normalise_tag_map(tags),
             "startTime": start_time,
             "endTime": end_time,
             "intervals": intervals
@@ -128,7 +135,7 @@ class DataCoreClient(http_client.HttpClient):
         :raises: An exception if JSON decoding fails.
         """
         req = {
-            "tags": tags,
+            "tags": normalise_tag_map(tags),
             "startTime": start_time,
             "endTime": end_time,
             "sampleInterval": sample_interval,
@@ -149,7 +156,7 @@ class DataCoreClient(http_client.HttpClient):
         :raises: An exception if JSON decoding fails.
         """
         req = {
-            "tags": tags,
+            "tags": normalise_tag_map(tags),
             "utcSampleTimes": utc_sample_times
         }
 
