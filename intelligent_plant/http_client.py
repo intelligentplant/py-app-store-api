@@ -37,10 +37,10 @@ class HttpClient(object):
         url = urlparse.urljoin(self.base_url, path)
         r = requests.get(url, params, headers=self.headers)
 
-        if (r.status_code == requests.codes.ok):
-            return r
-        else:
-            r.raise_for_status()
+        r.raise_for_status()
+
+        return r
+
 
     def post(self, path, params=None, data=None, json=None):
         """
@@ -58,10 +58,9 @@ class HttpClient(object):
         url = urlparse.urljoin(self.base_url, path)
         r = requests.post(url, data, params=params, headers=self.headers, json=json)
 
-        if (r.status_code == requests.codes.ok):
-            return r
-        else:
-            r.raise_for_status()
+        r.raise_for_status()
+
+        return r
 
     def get_json(self, path, params=None):
         """
