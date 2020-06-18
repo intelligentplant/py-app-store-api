@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 setup(
    name='intelligent_plant',
    url="https://github.com/intelligentplant/py-app-store-api",
-   version='1.1.4',
+   version='1.1.5',
    description='A wrapper for the Intellinget Plant API',
    long_description=long_description,
    long_description_content_type="text/markdown",
