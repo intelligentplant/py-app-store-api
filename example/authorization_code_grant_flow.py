@@ -13,6 +13,7 @@ app_id = None
 app_secret = None
 base_url = None
 
+#in the real world a new client would need to be instanced per user
 client = None
 
 #load the json config file with the app information
@@ -32,7 +33,7 @@ def auth():
     auth_code = request.query.code
 
     client = app_store.complete_authorization_code_grant_flow(auth_code, app_id, app_secret, "http://localhost:8080/auth", base_url=base_url)
-                                
+
     redirect('/info')
 
 @route('/info')
@@ -40,6 +41,13 @@ def info():
     """Once authorized the user is redirected here which displays there app store user info"""
     data = client.get_user_info()
     return str(data)
+
+@route('/refresh')
+def info():
+    """Refresh teh client session using the refresh token"""
+    global client
+    client = client.refresh_session(app_id, app_secret)
+    return "Refreshed"
 
 @route('/')
 def index():

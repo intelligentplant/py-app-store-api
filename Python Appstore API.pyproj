@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>cea4e09a-2aea-4ce8-a26e-bf704c46bf38</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>example\implicit_grant_flow.py</StartupFile>
+    <StartupFile>example\authorization_code_grant_flow.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>

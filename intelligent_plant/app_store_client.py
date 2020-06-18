@@ -2,6 +2,8 @@
 __author__ = "Ross Kelso"
 __docformat__ = 'reStructuredText'
 
+import time
+
 import urllib
 
 import requests
@@ -12,7 +14,7 @@ import intelligent_plant.http_client as http_client
 class AppStoreClient(http_client.HttpClient):
     """Access the Intelligent Plant Appstore API"""
 
-    def __init__(self, access_token, refresh_token=None, base_url = "https://appstore.intelligentplant.com/"):
+    def __init__(self, access_token, refresh_token=None, expires_in=None, base_url = "https://appstore.intelligentplant.com/"):
         """
         Initialise an App Store Client
         :param access_token: The access token used to authenticate this client. 
@@ -26,6 +28,8 @@ class AppStoreClient(http_client.HttpClient):
         """
         self.access_token = access_token
         self.refresh_token = refresh_token
+
+        self.expiry_time = time.time() + expires_in
 
         http_client.HttpClient.__init__(self, "Bearer " + self.access_token, base_url)
 
@@ -88,6 +92,43 @@ class AppStoreClient(http_client.HttpClient):
 
         return self.post("api/resource/refund", params=params)
 
+    def refresh_session(self, app_id, app_secret):
+        """
+        Refresh the inustrial app store session using the refresh token.
+        :param app_id: The ID of the app to authenticate under (found under Developer > Applications > Settings on the app store)
+        :param app_secret: The secret of the app to authenticate under (found under Developer > Applications > Settings on the app store) :warn This should not be published.
+
+        :return: A new instance of AppStoreClient with the refreshed access token.
+        :raises: :class:`HTTPError`, if one occurred.
+        """
+        if self.refresh_token is None:
+            raise "Cannot refresh. No refresh token specified."
+
+        path = "AuthorizationServer/OAuth/Token"
+        url = urllib.parse.urljoin(self.base_url, path)
+        r = requests.post(url, data = {"grant_type": "refresh_token", "refresh_token": self.refresh_token}, auth=requests.auth.HTTPBasicAuth(app_id, app_secret))
+
+        r.raise_for_status()
+
+        token_details = r.json()
+
+        return token_details_to_client(token_details, self.base_url)
+                    
+
+def token_details_to_client(token_details, base_url="https://appstore.intelligentplant.com"):
+    """
+    Convert access token details as provided by the app store API into an AppStoreClient.
+    :param token_details: The token details as requested from the API.
+    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com")
+
+    :return: An instance of AppStoreClient using the speicifed acccess token.
+    """
+    access_token = token_details['access_token']
+    refresh_token = token_details.get('refresh_token', None)
+    expires_in = float(token_details['expires_in'])
+
+    return AppStoreClient(access_token, refresh_token, expires_in, base_url)
+
 def get_authorization_code_grant_flow_url(app_id, redirect_uri, scopes, base_url = "https://appstore.intelligentplant.com"):
     """
     Get the url that the client should use for authorization code grant flow
@@ -135,12 +176,11 @@ def complete_authorization_code_grant_flow(auth_code, app_id, app_secret, redire
     
     r = requests.post(url, params)
 
-    if (r.status_code == requests.codes.ok):
-        token = r.json()
+    r.raise_for_status()
 
-        return AppStoreClient(token['access_token'], None)
-    else:
-        r.raise_for_status()
+    token_details = r.json()
+
+    return token_details_to_client(token_details, base_url)
 
     
 def get_implicit_grant_flow_url(app_id, redirect_url, scopes, base_url = "https://appstore.intelligentplant.com"):
@@ -165,5 +205,3 @@ def get_implicit_grant_flow_url(app_id, redirect_url, scopes, base_url = "https:
     url = base_url + "/authorizationserver/oauth/authorize?" + urllib.parse.urlencode(params)
 
     return url
-
-
