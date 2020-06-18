@@ -29,7 +29,10 @@ class AppStoreClient(http_client.HttpClient):
         self.access_token = access_token
         self.refresh_token = refresh_token
 
-        self.expiry_time = time.time() + expires_in
+        if expires_in is None:
+            self.expiry_time = None
+        else:
+            self.expiry_time = time.time() + expires_in
 
         http_client.HttpClient.__init__(self, "Bearer " + self.access_token, base_url)
 
@@ -102,7 +105,7 @@ class AppStoreClient(http_client.HttpClient):
         :raises: :class:`HTTPError`, if one occurred.
         """
         if self.refresh_token is None:
-            raise "Cannot refresh. No refresh token specified."
+            raise ValueError("Cannot refresh. No refresh token specified.")
 
         path = "AuthorizationServer/OAuth/Token"
         url = urllib.parse.urljoin(self.base_url, path)
@@ -125,6 +128,7 @@ def token_details_to_client(token_details, base_url="https://appstore.intelligen
     """
     access_token = token_details['access_token']
     refresh_token = token_details.get('refresh_token', None)
+    print(refresh_token)
     expires_in = float(token_details['expires_in'])
 
     return AppStoreClient(access_token, refresh_token, expires_in, base_url)
