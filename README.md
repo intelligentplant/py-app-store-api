@@ -33,10 +33,6 @@ To run the authorization code grant flow (server) example run:
 
 `python example\authorization_code_grant_flow.py`
 
-To run the example Jupyter notebook run:
+To use this library as part of a Jupyter Notebook join the Jupyter Hub:
 
-`jupyter notebook`
-
-The web UI should open, the examples can be found in `jupyter/App Store Client Example.ipynb`
-
-The default Jupyter URL is http://localhost:8888
+https://appstore.intelligentplant.com/Home/AppProfile?appId=40d7a49722f84be4986318bb5cc98cf3
