@@ -43,7 +43,7 @@ class AppStoreClient(http_client.HttpClient):
 
         :return: The data core client with the same authorization as this app store client.
         """
-        data_core_url = urllib.parse.urljoin(self.base_url, "gestalt/") if data_core_url == None else data_core_url
+        data_core_url = urllib.parse.urljoin(self.base_url, "gestalt/datacore/") if data_core_url == None else data_core_url
         return data_core_client.DataCoreClient("Bearer " + self.access_token, base_url = data_core_url)
 
     def get_user_info(self):
@@ -118,11 +118,11 @@ class AppStoreClient(http_client.HttpClient):
         return token_details_to_client(token_details, self.base_url)
                     
 
-def token_details_to_client(token_details, base_url="https://appstore.intelligentplant.com"):
+def token_details_to_client(token_details, base_url="https://appstore.intelligentplant.com/"):
     """
     Convert access token details as provided by the app store API into an AppStoreClient.
     :param token_details: The token details as requested from the API.
-    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com")
+    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com/")
 
     :return: An instance of AppStoreClient using the speicifed acccess token.
     """
@@ -133,7 +133,7 @@ def token_details_to_client(token_details, base_url="https://appstore.intelligen
 
     return AppStoreClient(access_token, refresh_token, expires_in, base_url)
 
-def get_authorization_code_grant_flow_url(app_id, redirect_uri, scopes, base_url = "https://appstore.intelligentplant.com"):
+def get_authorization_code_grant_flow_url(app_id, redirect_uri, scopes, base_url = "https://appstore.intelligentplant.com/"):
     """
     Get the url that the client should use for authorization code grant flow
     This grant flow should be used by web servers as it requires the app secret (which should not be made public).
@@ -141,7 +141,7 @@ def get_authorization_code_grant_flow_url(app_id, redirect_uri, scopes, base_url
     :param app_id: The ID of the app to authenticate under (found under Developer > Applications > Settings on the app store)
     :param redirect_uri: The URI to redirect the user to after they log in with the authentication token (must be an authorized redirect URI in the app developer settings)
     :param scopes: A list of string that are the scopes the user is granting (e.g. "UserInfo" and "DataRead")
-    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com")
+    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com/")
 
     :return: The URL that the user should be redirected to to log in.
     """
@@ -151,11 +151,11 @@ def get_authorization_code_grant_flow_url(app_id, redirect_uri, scopes, base_url
         'redirect_uri': redirect_uri,
         'scope': " ".join(scopes)
     }
-    url = base_url + "/authorizationserver/oauth/authorize?" + urllib.parse.urlencode(params)
+    url = base_url + "authorizationserver/oauth/authorize?" + urllib.parse.urlencode(params)
 
     return url
 
-def complete_authorization_code_grant_flow(auth_code, app_id, app_secret, redirect_uri, base_url = "https://appstore.intelligentplant.com"):
+def complete_authorization_code_grant_flow(auth_code, app_id, app_secret, redirect_uri, base_url = "https://appstore.intelligentplant.com/"):
     """
     Complete logging in the user using authroization grant flow
     This grant flow should be used by web servers as it requires the app secret (which should not be made public).
@@ -164,11 +164,11 @@ def complete_authorization_code_grant_flow(auth_code, app_id, app_secret, redire
     :param app_id: The ID of the app to authenticate under (found under Developer > Applications > Settings on the app store)
     :param app_secret: The secret of the app to authenticate under (found under Developer > Applications > Settings on the app store) :warn This should not be published.
     :param redirect_uri: Sn authorized redirect URI in the app developer settings
-    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com")
+    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com/")
 
     :return: An app store client with the access token specified
     """
-    url = base_url + "/authorizationserver/oauth/token"
+    url = base_url + "authorizationserver/oauth/token"
 
     params = {
         'grant_type': "authorization_code",
@@ -206,6 +206,6 @@ def get_implicit_grant_flow_url(app_id, redirect_url, scopes, base_url = "https:
         'scope': " ".join(scopes)
     }
 
-    url = base_url + "/authorizationserver/oauth/authorize?" + urllib.parse.urlencode(params)
+    url = base_url + "authorizationserver/oauth/authorize?" + urllib.parse.urlencode(params)
 
     return url

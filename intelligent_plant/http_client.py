@@ -20,7 +20,7 @@ class HttpClient(object):
         """
         self.base_url = base_url
 
-        self.headers = {'Authorization': authorization_header }
+        self.headers = { 'Authorization': authorization_header }
 
     def get(self, path, params):
         """

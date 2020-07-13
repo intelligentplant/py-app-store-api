@@ -90,7 +90,7 @@ with open('config.json') as json_config_file:
     data_core_url = config['data_core']['base_url']
 
     #generate the implicit grant flow url
-    url = app_store_client.get_implicit_grant_flow_url(app_id, redirect_url, ["UserInfo", "DataRead"], base_url = base_url)
+    url = app_store_client.get_implicit_grant_flow_url(app_id, redirect_url, ["UserInfo", "DataRead", "AccountDebit"], base_url = base_url)
 
     #open a web view window with the appstore login
     window = webview.create_window('Login', url)
