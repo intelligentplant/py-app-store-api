@@ -28,19 +28,15 @@ class DataCoreClient(http_client.HttpClient):
         """
         http_client.HttpClient.__init__(self, authorization_header, base_url)
     
-    def get_data_sources(self, filters):
+    def get_data_sources(self):
         """
         Get the list of available data sources
-
-        :param filter: A list of filters that should be applied to the search (if unsure try ["*"] to get all data sources)
 
         :return: The available data sources as a parsed JSON object.
         :raises: :class:`HTTPError`, if one occurred.
         :raises: An exception if JSON decoding fails.
         """
-        params = {
-            "filter": ",".join(filters)
-        }
+        params = {}
         
         return self.get_json("api/data/datasources", params)
 
