@@ -33,8 +33,8 @@ def data_source(data_core):
     :param data_core: A data core client instance
     :return: The available data sources
     """
-    #get all datasource matching the filter "*" (so all of theme)
-    return data_core.get_data_sources(["*"])
+    #get all datasources
+    return data_core.get_data_sources()
 
 def tag_search(data_core, dsn):
     """
