@@ -5,6 +5,7 @@ __docformat__ = 'reStructuredText'
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from datetime import datetime
 
 import intelligent_plant.utility as utility
 
@@ -98,3 +99,17 @@ def at_times(data_core, dsn, tags, times):
     :param times: the list of times to fetch values for.
     """
     return data_core.get_data_at_times({dsn: tags}, times)
+
+def write_snapshot(data_core):
+    """
+    Writes a value at a given time.
+
+    :param data_core: A data core client instance
+    """
+    dsn = "6E950F38B717309C996E5E5FEE1DD155FAE50A8FEEF1BE97B42523A8F3E26857.Edge Historian"
+
+    currentTime = datetime.now().isoformat()
+
+    values = [{"TagName": "PnID.Write.Test", "NumericValue": 100, "UTCSampleTime": currentTime, "Status": "Good"}]
+
+    return data_core.write_snapshot_values(dsn, values);
