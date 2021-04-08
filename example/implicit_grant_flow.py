@@ -65,6 +65,9 @@ def test_client(token):
 
     print(times)
 
+    #writes a value at the current time
+    writeResults = example_queries.write_snapshot(data_core);
+
 
 def on_loaded(window):
     while True: #TODO: listening for an event would be better than this busy wait

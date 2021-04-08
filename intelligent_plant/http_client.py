@@ -62,6 +62,27 @@ class HttpClient(object):
 
         return r
 
+    def put(self, path, params=None, data=None, json=None):
+        """
+        Make a PUT request to the specified path (relative to the client base url), with the specified parameters
+        :param path: The path to the target endpoint.
+        :param params: The query string parameters as a dictionary with the parameter name as the key
+        :param data: The data to be included in the request body.
+        :type path: string
+        :type params: dict
+
+        :return: :class:`Response <Response>` object
+        :rtype: requests.Response
+        :raises: :class:`HTTPError`, if one occurred.
+        """
+
+        url = urlparse.urljoin(self.base_url, path)
+        r = requests.put(url, data, params=params, headers=self.headers, json=json)
+
+        r.raise_for_status()
+
+        return r
+
     def get_json(self, path, params=None):
         """
         Make a GET request to the specified path (relative to the client base url), with the specified parameters
@@ -120,3 +141,18 @@ class HttpClient(object):
         :raises: :class:`HTTPError`, if one occurred.
         """
         return self.post(url, params=params, data=data, json=json).json()
+
+    def put_json(self, url, params=None, data=None, json=None):
+        """
+        Make a PUT request to the specified path (relative to the client base url), with the specified parameters
+        This method returns parses the reponse body as JSON.
+        :param path: The path to the target endpoint.
+        :param params: The query string parameters as a dictionary with the parameter name as the key
+        :param data: The data to be included in the request body.
+        :type path: string
+        :type params: dict
+
+        :return: The parsed response JSON object
+        :raises: :class:`HTTPError`, if one occurred.
+        """
+        return self.put(url, params=params, data=data, json=json).json()
