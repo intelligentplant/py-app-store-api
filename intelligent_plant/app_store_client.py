@@ -34,7 +34,7 @@ class AppStoreClient(http_client.HttpClient):
         else:
             self.expiry_time = time.time() + expires_in
 
-        http_client.HttpClient.__init__(self, "Bearer " + self.access_token, base_url)
+        http_client.HttpClient.__init__(self, base_url, authorization_header ="Bearer " + self.access_token)
 
     def get_data_core_client(self, data_core_url = None):
         """
@@ -44,7 +44,7 @@ class AppStoreClient(http_client.HttpClient):
         :return: The data core client with the same authorization as this app store client.
         """
         data_core_url = urllib.parse.urljoin(self.base_url, "gestalt/datacore/") if data_core_url == None else data_core_url
-        return data_core_client.DataCoreClient("Bearer " + self.access_token, base_url = data_core_url)
+        return data_core_client.DataCoreClient(base_url = data_core_url, authorization_header ="Bearer " + self.access_token)
 
     def get_user_info(self):
         """
@@ -185,9 +185,8 @@ def complete_authorization_code_grant_flow(auth_code, app_id, app_secret, redire
     token_details = r.json()
 
     return token_details_to_client(token_details, base_url)
-
-    
-def get_implicit_grant_flow_url(app_id, redirect_url, scopes, base_url = "https://appstore.intelligentplant.com"):
+  
+def get_implicit_grant_flow_url(app_id, redirect_url, scopes, base_url = "https://appstore.intelligentplant.com/"):
     """
     Get the url that the client should use for implicit grant flow.
     This grant flow should be used by native applications and clients, as it doesn't require the app secret.
