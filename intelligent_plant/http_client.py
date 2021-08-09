@@ -6,10 +6,12 @@ import urllib.parse as urlparse
 
 import requests
 
+from requests_ntlm import HttpNtlmAuth
+
 class HttpClient(object):
     """A base HTTP client that has an authorization header and base url"""
 
-    def __init__(self, authorization_header, base_url):
+    def __init__(self, base_url, **kwargs):
         """
         Initialise this HTTP client with an authorization header and base url.
 
@@ -20,7 +22,15 @@ class HttpClient(object):
         """
         self.base_url = base_url
 
-        self.headers = { 'Authorization': authorization_header }
+        self.headers =  {}
+
+        self.auth = None
+
+        if ("authorization_header" in kwargs):
+            self.headers = { 'Authorization': kwargs["authorization_header"] }
+
+        if ("auth" in kwargs):
+            self.auth = HttpNtlmAuth(kwargs["auth"]["user"], kwargs["auth"]["password"])
 
     def get(self, path, params):
         """
@@ -35,7 +45,7 @@ class HttpClient(object):
         :raises: :class:`HTTPError`, if one occurred.
         """
         url = urlparse.urljoin(self.base_url, path)
-        r = requests.get(url, params, headers=self.headers)
+        r = requests.get(url, params, headers=self.headers, auth=self.auth)
 
         r.raise_for_status()
 
@@ -56,7 +66,7 @@ class HttpClient(object):
         :raises: :class:`HTTPError`, if one occurred.
         """
         url = urlparse.urljoin(self.base_url, path)
-        r = requests.post(url, data, params=params, headers=self.headers, json=json)
+        r = requests.post(url, data, params=params, headers=self.headers, json=json, auth=self.auth)
 
         r.raise_for_status()
 
@@ -77,7 +87,7 @@ class HttpClient(object):
         """
 
         url = urlparse.urljoin(self.base_url, path)
-        r = requests.put(url, data, params=params, headers=self.headers, json=json)
+        r = requests.put(url, data, params=params, headers=self.headers, json=json, auth=self.auth)
 
         r.raise_for_status()
 

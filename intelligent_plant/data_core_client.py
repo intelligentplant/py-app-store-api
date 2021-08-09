@@ -17,7 +17,7 @@ def normalise_tag_map(tags):
 class DataCoreClient(http_client.HttpClient):
     """Access the Intelligent Plant Data Core API"""
 
-    def __init__(self, authorization_header, base_url = "https://appstore.intelligentplant.com/gestalt/datacore/"):
+    def __init__(self, base_url = "https://appstore.intelligentplant.com/gestalt/datacore/", **kwargs):
         """
         Initialise a data core client with the specified authoriation haeder value and base URL.
         It is recommended that you use AppStoreClient.get_data_core_client(..) rather than calling this directly.
@@ -25,7 +25,7 @@ class DataCoreClient(http_client.HttpClient):
         :param authorization_header: The authorization header that will be used for all requests.
         :param base_url: The base URL to make requests from. The default value is "https://appstore.intelligentplant.com/gestalt/datacore/" (the app store data api)
         """
-        http_client.HttpClient.__init__(self, authorization_header, base_url)
+        super().__init__(base_url, **kwargs)
     
     def get_data_sources(self):
         """
