@@ -13,5 +13,5 @@ setup(
    author='Intelligent Plant',
    author_email="support@intelligentplant.com",
    packages=['intelligent_plant'],
-   install_requires=['requests', 'pandas']
+   install_requires=['requests', 'requests_ntlm', 'pandas']
 )
