@@ -261,4 +261,4 @@ def complete_pkce(auth_code, app_id, redirect_uri, code_verifier, base_url = "ht
 
     token_details = r.json()
 
-    return app_store_client.token_details_to_client(token_details, base_url)
+    return token_details_to_client(token_details, base_url)
