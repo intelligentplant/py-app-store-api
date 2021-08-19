@@ -128,7 +128,6 @@ def token_details_to_client(token_details, base_url="https://appstore.intelligen
     """
     access_token = token_details['access_token']
     refresh_token = token_details.get('refresh_token', None)
-    print(refresh_token)
     expires_in = float(token_details['expires_in'])
 
     return AppStoreClient(access_token, refresh_token, expires_in, base_url)
@@ -189,7 +188,8 @@ def complete_authorization_code_grant_flow(auth_code, app_id, app_secret, redire
 def get_implicit_grant_flow_url(app_id, redirect_url, scopes, base_url = "https://appstore.intelligentplant.com/"):
     """
     Get the url that the client should use for implicit grant flow.
-    This grant flow should be used by native applications and clients, as it doesn't require the app secret.
+    This grant flow can be used by native applications and clients, as it doesn't require the app secret.
+    For security reasons the PKCE grant flow is recommended over the implicit grant flow.
     For information on the authorisation flow see: https://appstore.intelligentplant.com/wiki/doku.php?id=dev:app_store_developers
     :param app_id: The ID of the app to authenticate under (found under Developer > Applications > Settings on the app store)
     :param redirect_url: The URL to redirect the user to after they log in with the access token (must be an authorized redirect URI in the app developer settings)
@@ -208,3 +208,57 @@ def get_implicit_grant_flow_url(app_id, redirect_url, scopes, base_url = "https:
     url = base_url + "authorizationserver/oauth/authorize?" + urllib.parse.urlencode(params)
 
     return url
+
+def get_pkce_url(app_id, redirect_uri, scopes, code_challenge, code_challenge_method, base_url = "https://appstore.intelligentplant.com/"):
+    """
+    Get the url that the client should use for the PKCE grant flow
+    This grant flow should be used by web servers as it requires the app secret (which should not be made public).
+    :param app_id: The ID of the app to authenticate under (found under Developer > Applications > Settings on the app store)
+    :param redirect_uri: The URI to redirect the user to after they log in with the authentication token (must be an authorized redirect URI in the app developer settings)
+    :param scopes: A list of string that are the scopes the user is granting (e.g. "UserInfo" and "DataRead")
+    :param code_challenge: A PKCE code challenge. This should be generated from the verifier using sha256. A challenge verifier pair can be generated with the pkce package.
+    :param code_challenge_method: The method used to generate the code challenge from the code verifier, should be 'Plain' or 'S256' for sha256 (recommended).
+    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com/")
+    :return: The URL that the user should be redirected to to log in.
+    """
+    params = {
+        'response_type': "code",
+        'client_id': app_id,
+        'redirect_uri': redirect_uri,
+        'scope': " ".join(scopes),
+        'code_challenge': code_challenge,
+        'code_challenge_method': code_challenge_method
+    }
+    
+    url = base_url + "authorizationserver/oauth/authorize?" + urllib.parse.urlencode(params)
+
+    return url
+
+def complete_pkce(auth_code, app_id, redirect_uri, code_verifier, base_url = "https://appstore.intelligentplant.com/"):
+    """
+    Complete logging in the user using the PKCE grant flow
+    This grant flow should be used by web servers as it requires the app secret (which should not be made public).
+    :param auth_code: The code that was returned to the redirect URI after the user logged in.
+    :param app_id: The ID of the app to authenticate under (found under Developer > Applications > Settings on the app store)
+    :param redirect_uri: An authorized redirect URI in the app developer settings
+    :param code_verifier: The code verifier that was used to generate the code_challenge in the first step of the flow
+    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com/")
+    :return: An app store client with the access token specified
+    """
+    url = base_url + "authorizationserver/oauth/token"
+
+    params = {
+        'grant_type': "authorization_code",
+        'code': auth_code,
+        'client_id': app_id,
+        'code_verifier': code_verifier,
+        'redirect_uri': redirect_uri
+    }
+    
+    r = requests.post(url, params)
+
+    r.raise_for_status()
+
+    token_details = r.json()
+
+    return app_store_client.token_details_to_client(token_details, base_url)
