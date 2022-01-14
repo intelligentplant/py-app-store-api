@@ -170,3 +170,15 @@ class DataCoreClient(http_client.HttpClient):
         """
 
         return self.put_json(urlparse.urljoin("api/data/v2/snapshot/", dsn), json=values)
+
+    def write_historical_values(self, dsn, values):
+        """
+        Write a set of tag values into the specified datasource.
+        :param dsn: The data source name the values are to be written to.
+        :param values: A list of TagValue Objects that specifiy the values and the time stamps they are to be written at.
+        :return: A dictionary of tag names, containg dictionarys of Write Results detailing the success of the write.
+        :raises: :class:`HTTPError`, if one occurred.
+        :raises: An exception if JSON decoding fails.
+        """
+
+        return self.put_json(urlparse.urljoin("api/data/v2/history/", dsn), json=values)
