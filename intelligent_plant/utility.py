@@ -8,34 +8,32 @@ import datetime
 
 import pandas as pd
 
-def query_result_to_data_frame(result, include_dsn=False):
+def query_result_to_data_frame(result, include_dsn=False, force_numeric=False, force_string=False):
     """Convert the result of a data query into a data frame
        warn: this assumes that the timestamps for eachtag match (i.e. this won't work properly for raw queries)
-
        :param result: The parsed JSON result object. seealso: data_core_clinet.DataCoreClient.get_data(..)
        :param include_dsn: Whether or not to include the sata source name in the column name, defaul false.
-
+       :param force_numeric: Force numeric values to be taken over string values. Default: False
+       :param force_string: Force string values to be taken over numeric values. Default: False
        :return: A data frame with the queried tags as column headers and a row for each data point returned.
     """
     frame_data = {}
     
+
+    assert not (bool(force_numeric) and bool(force_string)), f'At most one of force_numeric or force_string can be set. Numeric: {force_numeric}, String: {force_string}' 
+    
     for dsn in result:
         #put the data data each tag into the data frame
-        for tag in result[dsn].items():
-            tag = tag[1]
+        for (tag_name, tag_data) in result[dsn].items():
             if (include_dsn):
-                name = dsn + " " + tag["TagName"]
+                name = dsn + "." + tag_name
             else:
-                name = tag["TagName"]
+                name = tag_name
             
             if (not "TimeStamp" in frame_data):
-                frame_data["TimeStamp"] = list(map(lambda x: pd.Timestamp(x["UtcSampleTime"]), tag["Values"]))
-
-            is_numeric = reduce(lambda x, y: x and y["IsNumeric"], tag["Values"], True)
-            if (is_numeric):
-                values = list(map(lambda x: x["NumericValue"], tag["Values"]))
-            else:
-                values = list(map(lambda x: x["TextValue"], tag["Values"]))
+                frame_data["TimeStamp"] = list(map(lambda x: pd.Timestamp(x["UtcSampleTime"]), tag_data["Values"]))
+            
+            values = list(map(lambda x: float(x["NumericValue"]) if (force_numeric or x["IsNumeric"]) and (not force_string) else x["TextValue"], tag_data["Values"]))
 
             frame_data[name] = values
     
@@ -52,7 +50,7 @@ def construct_tag_value(tag_name, utc_sample_time = None, numeric_value = None, 
        :param status: The status of this tag value. Must be 'Good', 'Bad' or 'Uncertain'. Default: 'Good'
        :param unit: The unit value that should be written. Default: the empty string.
        :param notes: Any notes that should be written. Default: None.
-       "param properties: Dictionary of generic properties to be written. Default {}
+       :param properties: Dictionary of generic properties to be written. Default {}
 
        :return: A tag value dictionary which can be used to write values to historians using data core.
     """
