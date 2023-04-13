@@ -36,15 +36,15 @@ class AppStoreClient(http_client.HttpClient):
 
         http_client.HttpClient.__init__(self, base_url, authorization_header ="Bearer " + self.access_token)
 
-    def get_data_core_client(self, data_core_url = None):
+    def get_data_core_client(self, *args, **kwargs):
         """
         Get the data core client with the same authorization details as this app store client.
-        :param data_core_url: The base URL for the data core API (optional, leaving it unspecified will determine the data core url relative to this client's base URL)
+        :param base_url: The base URL for the data core API. The default value is "https://api.intelligentplant.com/datacore/" (the app store data api)
 
         :return: The data core client with the same authorization as this app store client.
         """
-        data_core_url = urllib.parse.urljoin(self.base_url, "gestalt/datacore/") if data_core_url == None else data_core_url
-        return data_core_client.DataCoreClient(base_url = data_core_url, authorization_header ="Bearer " + self.access_token)
+        kwargs['authorization_header'] = "Bearer " + self.access_token
+        return data_core_client.DataCoreClient(*args, **kwargs)
 
     def get_user_info(self):
         """
