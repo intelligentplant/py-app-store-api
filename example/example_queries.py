@@ -5,7 +5,7 @@ __docformat__ = 'reStructuredText'
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import intelligent_plant.utility as utility
 
@@ -108,8 +108,20 @@ def write_snapshot(data_core):
     """
     dsn = "6E950F38B717309C996E5E5FEE1DD155FAE50A8FEEF1BE97B42523A8F3E26857.Edge Historian"
 
-    currentTime = datetime.now().isoformat()
+    tag_value = utility.construct_tag_value("PnID.Write.Test", numeric_value=100)
 
-    values = [{"TagName": "PnID.Write.Test", "NumericValue": 100, "UTCSampleTime": currentTime, "Status": "Good"}]
+    return data_core.write_snapshot_values(dsn, [tag_value])
 
-    return data_core.write_snapshot_values(dsn, values);
+def write_historical(data_core):
+    """
+    Writes historical value.
+
+    :param data_core: A data core client instance
+    """
+    dsn = "6E950F38B717309C996E5E5FEE1DD155FAE50A8FEEF1BE97B42523A8F3E26857.Edge Historian"
+
+    sample_time = datetime.now() - timedelta(days=1)
+
+    tag_value = utility.construct_tag_value("PnID.Write.Test", utc_sample_time=sample_time, numeric_value=50)
+
+    return data_core.write_historical_values(dsn, [tag_value])
