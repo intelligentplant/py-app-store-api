@@ -52,7 +52,7 @@ pytz==2019.1
 pywebview==3.0
 pywinpty==0.5.5
 pyzmq==18.0.2
-requests==2.22.0
+requests==2.31.0
 requests-bearer==0.5.1
 requests_ntlm==0.2.0
 scikit-learn==0.21.2
