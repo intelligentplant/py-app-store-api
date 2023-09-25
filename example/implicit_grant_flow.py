@@ -66,7 +66,10 @@ def test_client(token):
     print(times)
 
     #writes a value at the current time
-    writeResults = example_queries.write_snapshot(data_core);
+    write_snapshot_result = example_queries.write_snapshot(data_core)
+
+    #writes a value at a time in the past
+    write_historical_result = example_queries.write_historical(data_core)
 
 
 def on_loaded(window):
@@ -78,9 +81,11 @@ def on_loaded(window):
             window.destroy()
             #get the access code from the current url
             parsed = urllib.parse.urlparse(url)
-            print(parsed)
+
+            access_token = urllib.parse.parse_qs(parsed.fragment)['access_token'][0]
+            print(access_token)
             #test the app store and data core clients
-            test_client(urllib.parse.parse_qs(parsed.fragment)['access_token'][0])
+            test_client(access_token)
             break
 
 #load the json config file with the app information
