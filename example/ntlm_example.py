@@ -7,10 +7,13 @@ from getpass import getpass
 
 import intelligent_plant.data_core_client as data_core_client
 
-# This is the format of the base url for an app store connected installed locally
+# This is the the base url for an app store connected installed locally
 # This is the same as the URL of the admin UI
 # YOU MUST INCLUDE THE TRAILING '/'
-base_url = 'http://localhost:2006/Service/runtime/[app store connect namespace]/datacore/'
+base_url = 'http://localhost:2006/Service/runtime/997A4E3FD58B6CA3DEAA6C222108C040C078CF21844D0481236EE8DCEC831464/datacore/'
+
+print('Domain:')
+domain = input()
 
 print("Username:")
 username = input()
@@ -18,7 +21,8 @@ username = input()
 password = getpass()
 
 auth = {
-    'user': username,
+    'domain': domain,
+    'username': username,
     'password': password
 }
 

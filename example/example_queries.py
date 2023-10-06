@@ -17,9 +17,6 @@ def app_store_queries(app_store):
     #get the current users app store info
     print(app_store.get_user_info())
 
-    #get the current users balance
-    print(app_store.get_user_balance())
-
     #debit 1 credit from the account
     ref = app_store.debit_account(1)
 

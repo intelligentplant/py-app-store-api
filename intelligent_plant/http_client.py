@@ -6,7 +6,7 @@ import urllib.parse as urlparse
 
 import requests
 
-from requests_ntlm import HttpNtlmAuth
+from requests_negotiate_sspi import HttpNegotiateAuth
 
 class HttpClient(object):
     """A base HTTP client that has an authorization header and base url"""
@@ -30,7 +30,7 @@ class HttpClient(object):
             self.headers = { 'Authorization': kwargs["authorization_header"] }
 
         if ("auth" in kwargs):
-            self.auth = HttpNtlmAuth(kwargs["auth"]["user"], kwargs["auth"]["password"])
+            self.auth = HttpNegotiateAuth(**(kwargs["auth"]))
 
     def get(self, path, params):
         """

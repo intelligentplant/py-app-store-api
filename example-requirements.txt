@@ -1,0 +1,7 @@
+requests
+requests-negotiate-sspi
+pandas
+bottle
+matplotlib
+pywebview
+pkce
