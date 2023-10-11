@@ -22,15 +22,13 @@ class HttpClient(object):
         """
         self.base_url = base_url
 
-        self.headers =  {}
-
-        self.auth = None
+        self.session = requests.Session()
 
         if ("authorization_header" in kwargs):
-            self.headers = { 'Authorization': kwargs["authorization_header"] }
+            self.session.headers = { 'Authorization': kwargs["authorization_header"] }
 
         if ("auth" in kwargs):
-            self.auth = HttpNegotiateAuth(**(kwargs["auth"]))
+            self.session.auth = kwargs["auth"]
 
     def get(self, path, params):
         """
@@ -45,7 +43,7 @@ class HttpClient(object):
         :raises: :class:`HTTPError`, if one occurred.
         """
         url = urlparse.urljoin(self.base_url, path)
-        r = requests.get(url, params, headers=self.headers, auth=self.auth)
+        r = self.session.get(url, params=params)
 
         r.raise_for_status()
 
@@ -66,7 +64,7 @@ class HttpClient(object):
         :raises: :class:`HTTPError`, if one occurred.
         """
         url = urlparse.urljoin(self.base_url, path)
-        r = requests.post(url, data, params=params, headers=self.headers, json=json, auth=self.auth)
+        r = self.session.post(url, data=data, params=params, json=json)
 
         r.raise_for_status()
 
@@ -87,7 +85,7 @@ class HttpClient(object):
         """
 
         url = urlparse.urljoin(self.base_url, path)
-        r = requests.put(url, data, params=params, headers=self.headers, json=json, auth=self.auth)
+        r = self.session.put(url, data=data, params=params, json=json)
 
         r.raise_for_status()
 

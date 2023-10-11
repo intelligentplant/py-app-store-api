@@ -4,7 +4,7 @@ __docformat__ = 'reStructuredText'
 
 from getpass import getpass
 
-from requests_negotiate_sspi import HttpNegotiateAuth
+from requests.auth import HTTPBasicAuth
 
 import intelligent_plant.data_core_client as data_core_client
 
@@ -13,15 +13,13 @@ import intelligent_plant.data_core_client as data_core_client
 # YOU MUST INCLUDE THE TRAILING '/'
 base_url = 'http://localhost:2006/Service/runtime/997A4E3FD58B6CA3DEAA6C222108C040C078CF21844D0481236EE8DCEC831464/datacore/'
 
-print('Domain:')
-domain = input()
-
 print("Username:")
 username = input()
 
 password = getpass()
 
-auth = HttpNegotiateAuth(domain=domain, username=username, password=password)
+auth = HTTPBasicAuth(username=username, password=password)
+
 
 data_core= data_core_client.DataCoreClient(base_url=base_url, auth=auth)
 
