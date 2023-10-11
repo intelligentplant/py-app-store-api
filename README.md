@@ -42,6 +42,7 @@ Run the example using:
 
 
 To run the implicit grant flow example run:
+
 *The implicit grant flow is deprecated and is disabled by default*
 
 `python example\implicit_grant_flow.py`
