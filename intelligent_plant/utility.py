@@ -4,7 +4,7 @@ __docformat__ = 'reStructuredText'
 
 import math
 from functools import reduce
-import datetime
+from datetime import datetime, timezone
 
 import pandas as pd
 
@@ -58,7 +58,7 @@ def construct_tag_value(tag_name, utc_sample_time = None, numeric_value = None, 
     assert numeric_value is not None or text_value is not None, 'Either numeric or text value must be specified'
     
     # set sample time to now if unspecified
-    utc_sample_time = datetime.datetime.now() if utc_sample_time is None else utc_sample_time
+    utc_sample_time = datetime.now(timezone.utc) if utc_sample_time is None else utc_sample_time
     
     # determine whether the value is numveric based on 
     is_numeric = True if numeric_value is not None else False
