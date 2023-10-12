@@ -21,10 +21,12 @@ username = input()
 
 password = getpass()
 
-auth = HttpNegotiateAuth(domain=domain, username=username, password=password)
+auth = HttpNegotiateAuth()
 
 data_core= data_core_client.DataCoreClient(base_url=base_url, auth=auth)
 
 data_sources = data_core.get_data_sources()
 
 print(list(map(lambda x: x['Name']['QualifiedName'], data_sources)))
+
+print(data_core.get_tags('Edge Historian'))

@@ -30,10 +30,9 @@ def query_result_to_data_frame(result, include_dsn=False, force_numeric=False, f
             else:
                 name = tag_name
             
-            if (not "TimeStamp" in frame_data):
-                frame_data["TimeStamp"] = list(map(lambda x: pd.Timestamp(x["UtcSampleTime"]), tag_data["Values"]))
-            
-            values = list(map(lambda x: float(x["NumericValue"]) if (force_numeric or x["IsNumeric"]) and (not force_string) else x["TextValue"], tag_data["Values"]))
+            time_stamps = list(map(lambda x: pd.Timestamp(x["UtcSampleTime"]), tag_data["Values"]))
+            selected_values = list(map(lambda x: float(x["NumericValue"]) if (force_numeric or x["IsNumeric"]) and (not force_string) else x["TextValue"], tag_data["Values"]))
+            values = pd.Series(selected_values, index=time_stamps)
 
             frame_data[name] = values
     

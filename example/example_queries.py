@@ -54,10 +54,10 @@ def plot_tag(data_core, dsn, tag):
     #request some data
     data = data_core.get_plot_data({dsn: tag}, "*-30d", "*", 30)
     
-    data_frame = utility.query_result_to_data_frame(data)
+    data_frame = utility.query_result_to_data_frame(data, force_numeric=True)
 
-    #plot the data frame (plot.show should be called by the calling function)
-    plt.plot(data_frame["TimeStamp"], data_frame.loc[:, data_frame.columns != 'TimeStamp'])
+    #plot the data frame
+    plt.plot(data_frame)
     plt.show()
 
 def plot_tags(data_core, dsn, tag_names):
@@ -71,10 +71,12 @@ def plot_tags(data_core, dsn, tag_names):
     
     data = data_core.get_plot_data({dsn: tag_names}, "*-30d", "*", 30)
 
-    data_frame = utility.query_result_to_data_frame(data)
+    data_frame = utility.query_result_to_data_frame(data, force_numeric=True)
+
+    data_frame.fillna(method='ffill', inplace=True)
     
     #plot the data frame
-    plt.plot(data_frame["TimeStamp"], data_frame.loc[:, data_frame.columns != 'TimeStamp'])
+    plt.plot(data_frame)
     plt.show()
 
 def snapshot(data_core, dsn, tag):
