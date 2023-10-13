@@ -1,6 +1,5 @@
 requests
 requests-negotiate-sspi
-requests-ntlm
 pandas
 bottle
 matplotlib
