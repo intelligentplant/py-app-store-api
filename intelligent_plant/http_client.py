@@ -6,8 +6,6 @@ import urllib.parse as urlparse
 
 import requests
 
-from requests_negotiate_sspi import HttpNegotiateAuth
-
 class HttpClient(object):
     """A base HTTP client that has an authorization header and base url"""
 
