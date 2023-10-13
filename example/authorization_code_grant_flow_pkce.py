@@ -57,7 +57,7 @@ def index():
     """Users land here at the route and get redirected to the app store login page"""
     global code_verifier
     code_verifier, code_challenge = pkce.generate_pkce_pair()
-    url = app_store.get_authorization_code_grant_flow_url(app_id, "http://localhost:8080/auth", ["UserInfo", "DataRead"], code_challenge=code_challenge, base_url=base_url)
+    url = app_store.get_authorization_code_grant_flow_url(app_id, "http://localhost:8080/auth", ["UserInfo", "DataRead"], code_challenge=code_challenge, code_challenge_method='S256', base_url=base_url)
     redirect(url)
 
 

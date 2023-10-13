@@ -14,7 +14,7 @@ import intelligent_plant.http_client as http_client
 class AppStoreClient(http_client.HttpClient):
     """Access the Intelligent Plant Appstore API"""
 
-    def __init__(self, access_token, refresh_token=None, expires_in=None, base_url = "https://appstore.intelligentplant.com/"):
+    def __init__(self, access_token, refresh_token=None, expires_in=None, base_url = "https://appstore.intelligentplant.com/", **kwargs):
         """
         Initialise an App Store Client
         :param access_token: The access token used to authenticate this client. 
@@ -34,7 +34,7 @@ class AppStoreClient(http_client.HttpClient):
         else:
             self.expiry_time = time.time() + expires_in
 
-        http_client.HttpClient.__init__(self, base_url, authorization_header ="Bearer " + self.access_token)
+        http_client.HttpClient.__init__(self, base_url, authorization_header ="Bearer " + self.access_token, **kwargs)
 
     def get_data_core_client(self, *args, **kwargs):
         """

@@ -7,6 +7,6 @@
     "base_url": "https://appstore.intelligentplant.com"
   },
   "data_core": {
-    "base_url": "https://api.intelligentplant.com/datacore"
+    "base_url": "https://api.intelligentplant.com/datacore/"
   }
 }

@@ -4,6 +4,7 @@ __docformat__ = 'reStructuredText'
 
 from getpass import getpass
 
+from requests_negotiate_sspi import HttpNegotiateAuth
 
 import intelligent_plant.data_core_client as data_core_client
 
@@ -20,14 +21,12 @@ username = input()
 
 password = getpass()
 
-auth = {
-    'domain': domain,
-    'username': username,
-    'password': password
-}
+auth = HttpNegotiateAuth()
 
 data_core= data_core_client.DataCoreClient(base_url=base_url, auth=auth)
 
 data_sources = data_core.get_data_sources()
 
 print(list(map(lambda x: x['Name']['QualifiedName'], data_sources)))
+
+print(data_core.get_tags('Edge Historian'))

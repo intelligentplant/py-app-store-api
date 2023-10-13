@@ -40,7 +40,7 @@ def test_client(token):
 
     print("\n")
 
-    dsn = "IP Datasource 2"
+    dsn = 'FCBB05262EADC0B147746EE6DFB2B3EA5C272C33C2C5E3FE8F473D85529461CA.Oil Co Demo'
 
     #load the available tags for the 1st loaded datasource
     tags = example_queries.tag_search(data_core, dsn)
