@@ -83,3 +83,50 @@ def construct_tag_value(tag_name, utc_sample_time = None, numeric_value = None, 
         'HasError': has_error,
         'Properties': properties
     }
+
+def construct_tag_definition(tag_name, current_value=None, description='', digital_states=[], is_meta_tag=False, original_name='', properties={}, unit_of_measure=''):
+    """Construct the tag defintion object as required by the DataCoreClient.create_tag(..) function.
+
+    :param tag_name: The name of the tag to be created.
+    :param current_value: The current value of the tag to be created. Optional, default None.
+    :param description: The tag description. Optional, defaults to the empty string.
+    :param digital_states: A list of digital states this tag has. Optional, defaults to an empty list.
+    :param is_meta_tag: Should be set if this is a meta-tag. Optional, default False.
+    :param original_name: Tags original name.
+    :param properties: Additional tag proeprties as required by data source implmentation.
+    :param unit_of_measure: The unit used to measure this tag.
+
+    :return: A tag defintoion object.
+    """
+    return {
+        'CurrentValue': current_value,
+        'Description': description,
+        'DigitalStates': digital_states,
+        'IsMetaTag': is_meta_tag,
+        'Name': tag_name,
+        'OriginalName': original_name,
+        'Properties': properties,
+        'UnitOfMeasure': unit_of_measure
+    }
+
+def construct_tag_definition_property(name, value, category=None, description=None, display_index=0, is_read_only=False, is_write_only=False, use_long_text_editor=False):
+    """Construct tag defintion property object used in construct_tag_definition(..).
+
+    :param name: The name of property.
+    :param value: The value of the property
+    :param description: The proeprty description. Optional, defaults to None.
+    :param digital_states: A list of digital states this tag has. Optional, defaults to an empty list.
+
+
+    :return: A tag definition property object.
+    """
+    return {
+        'Name': name,
+        'Value': value,
+        'Category': category,
+        'Description': description,
+        'IsReadOnly': is_read_only,
+        'IsWriteOnly': is_write_only,
+        'DisplayIndex': display_index,
+        'UseLongTextEditor': use_long_text_editor
+    }
