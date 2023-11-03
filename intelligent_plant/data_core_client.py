@@ -182,3 +182,14 @@ class DataCoreClient(http_client.HttpClient):
         """
 
         return self.put_json(urlparse.urljoin("api/data/v2/history/", dsn), json=values)
+
+    def create_tag(self, dsn, tag_definition):
+        """
+        Create a new tag in the specified data source.
+        :param dsn: The data source name where the new tag should be created.
+        :param tag_definition: AA ttag defintiion object defining tag properties. This will be data source specific.
+        :return: The tag definition object as created in the data source.
+        :raises: :class:`HTTPError`, if one occurred.
+        :raises: An exception if JSON decoding fails.
+        """
+        return self.put_json(urlparse.urljoin("api/configuration/tags/", dsn), json=tag_definition)
