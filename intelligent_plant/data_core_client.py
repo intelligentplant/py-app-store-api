@@ -181,7 +181,7 @@ class DataCoreClient(http_client.HttpClient):
         :raises: An exception if JSON decoding fails.
         """
 
-        return self.put_json(urlparse.urljoin("api/data/v2/history/", dsn), json=values)s
+        return self.put_json(urlparse.urljoin("api/data/v2/history/", dsn), json=values)
 
     def create_tag(self, dsn, tag_definition):
         """

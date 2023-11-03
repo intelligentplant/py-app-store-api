@@ -35,6 +35,7 @@
     </Compile>
     <Compile Include="example\implicit_grant_flow.py" />
     <Compile Include="example\ntlm_example.py" />
+    <Compile Include="example\tag_creation_example.py" />
     <Compile Include="intelligent_plant\app_store_client.py">
       <SubType>Code</SubType>
     </Compile>

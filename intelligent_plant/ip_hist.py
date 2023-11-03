@@ -2,7 +2,7 @@
 __author__ = "Ross Kelso"
 __docformat__ = 'reStructuredText'
 
-from utility import construct_tag_definition_property
+from intelligent_plant.utility import construct_tag_definition_property
 
 
 def construct_ip_hist_tag_properties(compression_type='percent', exception_deviation=2, compression_deviation=8, resample_limit=8640000, interface_archiving_enabled=False, interface_dsn=None, interface_tag=None, is_digital=False, prefer_stepped_visualization=False, record_history=True):
