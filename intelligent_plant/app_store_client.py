@@ -11,10 +11,12 @@ import requests
 import intelligent_plant.data_core_client as data_core_client
 import intelligent_plant.http_client as http_client
 
+from intelligent_plant.http_client import json
+
 class AppStoreClient(http_client.HttpClient):
     """Access the Intelligent Plant Appstore API"""
 
-    def __init__(self, access_token, refresh_token=None, expires_in=None, base_url = "https://appstore.intelligentplant.com/", **kwargs):
+    def __init__(self, access_token: str, refresh_token: str = None, expires_in: int = None, base_url: str = "https://appstore.intelligentplant.com/", **kwargs):
         """
         Initialise an App Store Client
         :param access_token: The access token used to authenticate this client. 
@@ -46,33 +48,37 @@ class AppStoreClient(http_client.HttpClient):
         kwargs['authorization_header'] = "Bearer " + self.access_token
         return data_core_client.DataCoreClient(*args, **kwargs)
 
-    def get_user_info(self):
+    def get_user_info(self) -> json:
         """
         Get the authenticated user's user info from the app store.
 
-        :return: The users infor as a parsed JSON object
-        :raises: :class:`HTTPError`, if one occurred.
-        :raises: An exception if JSON decoding fails.
+        :return: The users info as a parsed JSON object.
+
+        :raises: :class:`HTTPError` if an HTTP error occurrs.
+        :raises: :class:`JSONDecodeError` if JSON decoding fails.
         """
         return self.get_json("api/resource/userinfo")
 
-    def get_user_balance(self):
+    def get_user_balance(self) -> json:
         """
         Get the authenticated user's balance of credits.
 
-        :return: The users balance as a float
-        :raises: :class:`HTTPError`, if one occurred.
+        :return: The users balance as a float.
+
+        :raises: :class:`HTTPError` if an HTTP error occurrs.
+        :raises: :class:`JSONDecodeError` if JSON decoding fails.
         """
         return float(self.get_text("api/resource/userbalance"))
 
-    def debit_account(self, amount):
+    def debit_account(self, amount: int) -> json:
         """
         Debit the user's app store account.
         :param amount: The number of credits that should be debited from the user's account.
 
         :return: The transaction reference of the user's payment.
-        :raises: :class:`HTTPError`, if one occurred.
-        :raises: An exception if JSON decoding fails.
+
+        :raises: :class:`HTTPError` if an HTTP error occurrs.
+        :raises: :class:`JSONDecodeError` if JSON decoding fails.
         """
         params = {
             "debitAmount": amount
@@ -80,13 +86,15 @@ class AppStoreClient(http_client.HttpClient):
 
         return self.post_json("api/resource/debit", params=params)
 
-    def refund_account(self, transaction_ref):
+    def refund_account(self, transaction_ref: str) -> json:
         """
         Refund a transaction
         :param transaction_ref: The transaction reference of the transation you want to refund.
 
         :return: The requests response object.
-        :raises: :class:`HTTPError`, if one occurred.
+
+        :raises: :class:`HTTPError` if an HTTP error occurrs.
+        :raises: :class:`JSONDecodeError` if JSON decoding fails.
         """
 
         params = {
@@ -95,14 +103,16 @@ class AppStoreClient(http_client.HttpClient):
 
         return self.post("api/resource/refund", params=params)
 
-    def refresh_session(self, app_id, app_secret):
+    def refresh_session(self, app_id: str, app_secret: str):
         """
         Refresh the inustrial app store session using the refresh token.
         :param app_id: The ID of the app to authenticate under (found under Developer > Applications > Settings on the app store)
         :param app_secret: The secret of the app to authenticate under (found under Developer > Applications > Settings on the app store) :warn This should not be published.
 
         :return: A new instance of AppStoreClient with the refreshed access token.
-        :raises: :class:`HTTPError`, if one occurred.
+        
+        :raises: :class:`HTTPError` if an HTTP error occurrs.
+        :raises: :class:`JSONDecodeError` if JSON decoding fails.
         """
         if self.refresh_token is None:
             raise ValueError("Cannot refresh. No refresh token specified.")
@@ -118,7 +128,7 @@ class AppStoreClient(http_client.HttpClient):
         return token_details_to_client(token_details, self.base_url)
                     
 
-def token_details_to_client(token_details, base_url="https://appstore.intelligentplant.com/"):
+def token_details_to_client(token_details: dict[str,str], base_url: str = "https://appstore.intelligentplant.com/") -> AppStoreClient:
     """
     Convert access token details as provided by the app store API into an AppStoreClient.
     :param token_details: The token details as requested from the API.
@@ -132,7 +142,7 @@ def token_details_to_client(token_details, base_url="https://appstore.intelligen
 
     return AppStoreClient(access_token, refresh_token, expires_in, base_url)
 
-def get_authorization_code_grant_flow_url(app_id, redirect_uri, scopes, code_challenge = None, code_challenge_method = None, state = None, base_url = "https://appstore.intelligentplant.com/"):
+def get_authorization_code_grant_flow_url(app_id: str, redirect_uri: str, scopes: list[str], code_challenge: str = None, code_challenge_method: str = None, state: str = None, base_url: str = "https://appstore.intelligentplant.com/") -> str:
     """
     Get the url that the client should use for authorization code grant flow
     This grant flow should be used by web servers as it requires the app secret (which should not be made public).
@@ -167,7 +177,7 @@ def get_authorization_code_grant_flow_url(app_id, redirect_uri, scopes, code_cha
 
     return url
 
-def complete_authorization_code_grant_flow(auth_code, app_id, app_secret, redirect_uri, code_verifier = None, base_url = "https://appstore.intelligentplant.com/"):
+def complete_authorization_code_grant_flow(auth_code: str, app_id: str, app_secret: str, redirect_uri: str, code_verifier: str = None, base_url: str = "https://appstore.intelligentplant.com/") -> AppStoreClient:
     """
     Complete logging in the user using authroization grant flow
     This grant flow should be used by web servers as it requires the app secret (which should not be made public).
@@ -205,7 +215,7 @@ def complete_authorization_code_grant_flow(auth_code, app_id, app_secret, redire
 
     return token_details_to_client(token_details, base_url)
   
-def get_implicit_grant_flow_url(app_id, redirect_url, scopes, state=None, base_url = "https://appstore.intelligentplant.com/"):
+def get_implicit_grant_flow_url(app_id: str, redirect_url: str, scopes: list[str], state: str = None, base_url: str = "https://appstore.intelligentplant.com/") -> str:
     """
     Get the url that the client should use for implicit grant flow.
     This grant flow can be used by native applications and clients, as it doesn't require the app secret.

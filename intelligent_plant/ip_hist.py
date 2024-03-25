@@ -5,7 +5,8 @@ __docformat__ = 'reStructuredText'
 from intelligent_plant.utility import construct_tag_definition_property
 
 
-def construct_ip_hist_tag_properties(compression_type='percent', exception_deviation=2, compression_deviation=8, resample_limit=8640000, interface_archiving_enabled=False, interface_dsn=None, interface_tag=None, is_digital=False, prefer_stepped_visualization=False, record_history=True):
+def construct_ip_hist_tag_properties(compression_type: str = 'percent', exception_deviation: float = 2, compression_deviation: float = 8, resample_limit: int = 8640000, 
+        interface_archiving_enabled: bool = False, interface_dsn: str = None, interface_tag: str = None, is_digital: bool = False, prefer_stepped_visualization: bool = False, record_history: bool = True):
     """Construct tag defintion property objects needed to create a tag in IP Hist.
     Usage: data_core.create_tag(dsn, utility.construct_tag_definition('tag-name', properties=ip_hist.construct_ip_hist_tag_properties()))
 

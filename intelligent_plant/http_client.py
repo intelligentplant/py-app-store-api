@@ -5,11 +5,14 @@ __docformat__ = 'reStructuredText'
 import urllib.parse as urlparse
 
 import requests
+from requests import Response
+
+from intelligent_plant.type_handler import json, post_data
 
 class HttpClient(object):
     """A base HTTP client that has an authorization header and base url"""
 
-    def __init__(self, base_url, **kwargs):
+    def __init__(self, base_url: str, **kwargs):
         """
         Initialise this HTTP client with an authorization header and base url.
 
@@ -28,7 +31,7 @@ class HttpClient(object):
         if ("auth" in kwargs):
             self.session.auth = kwargs["auth"]
 
-    def get(self, path, params):
+    def get(self, path: str, params: dict[str,str]) -> Response:
         """
         Make a GET request to the specified path (relative to the client base url), with the specified parameters
         :param path: The path to the target endpoint.
@@ -48,7 +51,7 @@ class HttpClient(object):
         return r
 
 
-    def post(self, path, params=None, data=None, json=None):
+    def post(self, path: str, params: dict[str,str] = None, data: post_data = None, json: json = None) -> Response:
         """
         Make a POST request to the specified path (relative to the client base url), with the specified parameters
         :param path: The path to the target endpoint.
@@ -59,6 +62,7 @@ class HttpClient(object):
 
         :return: :class:`Response <Response>` object
         :rtype: requests.Response
+
         :raises: :class:`HTTPError`, if one occurred.
         """
         url = urlparse.urljoin(self.base_url, path)
@@ -68,7 +72,7 @@ class HttpClient(object):
 
         return r
 
-    def put(self, path, params=None, data=None, json=None):
+    def put(self, path: str, params: dict[str,str] = None, data: post_data = None, json: json = None) -> Response:
         """
         Make a PUT request to the specified path (relative to the client base url), with the specified parameters
         :param path: The path to the target endpoint.
@@ -79,6 +83,7 @@ class HttpClient(object):
 
         :return: :class:`Response <Response>` object
         :rtype: requests.Response
+
         :raises: :class:`HTTPError`, if one occurred.
         """
 
@@ -89,7 +94,7 @@ class HttpClient(object):
 
         return r
 
-    def get_json(self, path, params=None):
+    def get_json(self, path: str, params: dict[str,str] = None) -> json:
         """
         Make a GET request to the specified path (relative to the client base url), with the specified parameters
         This method additionally parses the JSON response object.
@@ -99,12 +104,13 @@ class HttpClient(object):
         :type params: dict
 
         :return: The parsed JSON response object.
-        :raises: :class:`HTTPError`, if one occurred.
-        :raises: An exception if JSON decoding fails.
+
+        :raises: :class:`HTTPError` if an HTTP error occurrs.
+        :raises: :class:`JSONDecodeError` if JSON decoding fails.
         """
         return self.get(path, params).json()
 
-    def get_text(self, path, params=None):
+    def get_text(self, path: str, params: dict[str,str] = None) -> str:
         """
         Make a GET request to the specified path (relative to the client base url), with the specified parameters
         This method returns the text content of the response body.
@@ -118,7 +124,7 @@ class HttpClient(object):
         """
         return self.get(path, params).text
 
-    def post_text(self, path, params=None, data=None):
+    def post_text(self, path: str, params: dict[str,str] = None, data: post_data = None) -> str:
         """
         Make a POST request to the specified path (relative to the client base url), with the specified parameters
         This method returns the response content as text
@@ -133,7 +139,7 @@ class HttpClient(object):
         """
         return self.post(path, params=params, data=data).text
 
-    def post_json(self, url, params=None, data=None, json=None):
+    def post_json(self, path: str, params: dict[str,str] = None, data: post_data = None, json: json = None) -> json:
         """
         Make a POST request to the specified path (relative to the client base url), with the specified parameters
         This method returns parses the reponse body as JSON.
@@ -144,11 +150,13 @@ class HttpClient(object):
         :type params: dict
 
         :return: The parsed response JSON object
-        :raises: :class:`HTTPError`, if one occurred.
-        """
-        return self.post(url, params=params, data=data, json=json).json()
 
-    def put_json(self, url, params=None, data=None, json=None):
+        :raises: :class:`HTTPError` if an HTTP error occurrs.
+        :raises: :class:`JSONDecodeError` if JSON decoding fails.
+        """
+        return self.post(path, params=params, data=data, json=json).json()
+
+    def put_json(self, path: str, params: dict[str,str] = None, data: post_data = None, json: json = None) -> json:
         """
         Make a PUT request to the specified path (relative to the client base url), with the specified parameters
         This method returns parses the reponse body as JSON.
@@ -159,6 +167,8 @@ class HttpClient(object):
         :type params: dict
 
         :return: The parsed response JSON object
-        :raises: :class:`HTTPError`, if one occurred.
+
+        :raises: :class:`HTTPError` if an HTTP error occurrs.
+        :raises: :class:`JSONDecodeError` if JSON decoding fails.
         """
-        return self.put(url, params=params, data=data, json=json).json()
+        return self.put(path, params=params, data=data, json=json).json()

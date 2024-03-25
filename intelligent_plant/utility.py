@@ -8,7 +8,11 @@ from datetime import datetime, timezone
 
 import pandas as pd
 
-def query_result_to_data_frame(result, include_dsn=False, force_numeric=False, force_string=False):
+from intelligent_plant.type_handler import time_stamp, json, format_time_stamp
+
+property_collection = type[dict[str,dict[str]]]
+
+def query_result_to_data_frame(result: json, include_dsn: bool = False, force_numeric: bool = False, force_string: bool = False) -> pd.DataFrame:
     """Convert the result of a data query into a data frame
        warn: this assumes that the timestamps for eachtag match (i.e. this won't work properly for raw queries)
        :param result: The parsed JSON result object. seealso: data_core_clinet.DataCoreClient.get_data(..)
@@ -39,7 +43,7 @@ def query_result_to_data_frame(result, include_dsn=False, force_numeric=False, f
     
     return pd.DataFrame(frame_data)
 
-def construct_tag_value(tag_name, utc_sample_time = None, numeric_value = None, text_value = None, status = 'Good', unit = '', notes = None, error = None, properties = {}):
+def construct_tag_value(tag_name: str, utc_sample_time: time_stamp = None, numeric_value: float = None, text_value: str = None, status: str = 'Good', unit: str = '', notes = None, error = None, properties: property_collection = {}) -> dict[str]:
     """Construct a tag value object for use with the write_tag_value_snapshot(..) or write_tag_value_historical(..) functions
 
        :param tag_name: The pname of the tag to write to.
@@ -84,7 +88,7 @@ def construct_tag_value(tag_name, utc_sample_time = None, numeric_value = None, 
         'Properties': properties
     }
 
-def construct_tag_definition(tag_name, current_value=None, description='', digital_states=[], is_meta_tag=False, original_name='', properties={}, unit_of_measure=''):
+def construct_tag_definition(tag_name: str, current_value: str|float = None, description: str = '', digital_states: list = [], is_meta_tag: bool = False, original_name: str = '', properties: property_collection = {}, unit_of_measure: str = '') -> dict[str]:
     """Construct the tag defintion object as required by the DataCoreClient.create_tag(..) function.
 
     :param tag_name: The name of the tag to be created.
@@ -109,14 +113,12 @@ def construct_tag_definition(tag_name, current_value=None, description='', digit
         'UnitOfMeasure': unit_of_measure
     }
 
-def construct_tag_definition_property(name, value, category=None, description=None, display_index=0, is_read_only=False, is_write_only=False, use_long_text_editor=False):
+def construct_tag_definition_property(name: str, value: str, category=None, description: str = None, display_index: int = 0, is_read_only: bool = False, is_write_only: bool = False, use_long_text_editor: bool = False) -> dict[str]:
     """Construct tag defintion property object used in construct_tag_definition(..).
 
     :param name: The name of property.
     :param value: The value of the property
     :param description: The proeprty description. Optional, defaults to None.
-    :param digital_states: A list of digital states this tag has. Optional, defaults to an empty list.
-
 
     :return: A tag definition property object.
     """
@@ -129,4 +131,32 @@ def construct_tag_definition_property(name, value, category=None, description=No
         'IsWriteOnly': is_write_only,
         'DisplayIndex': display_index,
         'UseLongTextEditor': use_long_text_editor
+    }
+
+def construct_annotation(tag_name: str, value: str, application_name: str, utc_annotation_time: datetime = None, description: str = None, more_info_url: str = None, is_read_only: bool = False) -> dict[str]:
+    """
+    Construct an annotation object that can be used to create or update annotations with the data core client.
+
+    
+    :param tag_name: The tag this annotation should be created on.
+    :param application_name: The name of the application the annotation was created by.
+    :param value: The value of the annotation.
+    :param utc_annotation_time: The time the annotation should be recoreded at in the data. Optional, defaults to the current time.
+    :param description: The detailed description of the annotation. Optional
+    :param more_info_url: A URL that can be followed to get more information about the annotation. Optional
+    :param is_read_only: Whether the annotation is read only: Optional, default False
+
+    :return: A dictionary containing the specified annotation with the names expected by the data core API.
+    """
+    utc_annotation_time = datetime.now(timezone.utc) if utc_annotation_time is None else utc_annotation_time
+    return {
+        'Identifier': {
+            'TagName': tag_name,
+            'UtcAnnotationTime': format_time_stamp(utc_annotation_time)
+        },
+        'Value': value,
+        'Description': description,
+        'ApplicationName': application_name,
+        'MoreInfo': more_info_url,
+        'IsReadOnly': is_read_only
     }
