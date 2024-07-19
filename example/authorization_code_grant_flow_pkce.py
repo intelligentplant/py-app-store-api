@@ -37,6 +37,8 @@ def auth():
 
     client = app_store.complete_authorization_code_grant_flow(auth_code, app_id, app_secret, "http://localhost:8080/auth", code_verifier=code_verifier, base_url=base_url)
 
+    print(client.refresh_token)
+
     redirect('/info')
 
 @route('/info')
@@ -49,7 +51,9 @@ def info():
 def info():
     """Refresh teh client session using the refresh token"""
     global client
+    print("Old access token: ", client.access_token)
     client = client.refresh_session(app_id, app_secret)
+    print("New access token: ", client.access_token)
     return "Refreshed"
 
 @route('/')
@@ -57,7 +61,7 @@ def index():
     """Users land here at the route and get redirected to the app store login page"""
     global code_verifier
     code_verifier, code_challenge = pkce.generate_pkce_pair()
-    url = app_store.get_authorization_code_grant_flow_url(app_id, "http://localhost:8080/auth", ["UserInfo", "DataRead"], code_challenge=code_challenge, code_challenge_method='S256', base_url=base_url)
+    url = app_store.get_authorization_code_grant_flow_url(app_id, "http://localhost:8080/auth", ["UserInfo", "DataRead"], code_challenge=code_challenge, code_challenge_method='S256', access_type='offline', base_url=base_url)
     redirect(url)
 
 
