@@ -142,7 +142,7 @@ def token_details_to_client(token_details: dict[str,str], base_url: str = "https
 
     return AppStoreClient(access_token, refresh_token, expires_in, base_url)
 
-def get_authorization_code_grant_flow_url(app_id: str, redirect_uri: str, scopes: list[str], code_challenge: str = None, code_challenge_method: str = None, state: str = None, base_url: str = "https://appstore.intelligentplant.com/") -> str:
+def get_authorization_code_grant_flow_url(app_id: str, redirect_uri: str, scopes: list[str], code_challenge: str = None, code_challenge_method: str = None, state: str = None, access_type: str = None, base_url: str = "https://appstore.intelligentplant.com/") -> str:
     """
     Get the url that the client should use for authorization code grant flow
     This grant flow should be used by web servers as it requires the app secret (which should not be made public).
@@ -153,6 +153,7 @@ def get_authorization_code_grant_flow_url(app_id: str, redirect_uri: str, scopes
     :param code_challenge_method: The method used to generate the code challenge from the code verifier, should be 'plain' or 'S256' for sha256 (recommended).
     :param scopes: A list of string that are the scopes the user is granting (e.g. "UserInfo" and "DataRead")
     :param state: The OAuth state parameter. This can be used to prevent cross site request forgery or track application state (Optional).
+    :param access_type: Set the access type to "offline" to enable refresh tokens (Optional).
     :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com/")
 
     :return: The URL that the user should be redirected to to log in.
@@ -173,6 +174,9 @@ def get_authorization_code_grant_flow_url(app_id: str, redirect_uri: str, scopes
     if state is not None:
         params['state'] = state
 
+    if access_type is not None:
+        params["access_type"] = access_type
+        
     url = base_url + "authorizationserver/oauth/authorize?" + urllib.parse.urlencode(params)
 
     return url
