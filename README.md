@@ -37,9 +37,19 @@ To run the authorization code grant flow example run:
 
 `python example\authorization_code_grant_flow.py`
 
-To run the authorization code grant flow example with the PKCE extensionrun:
+To run the authorization code grant flow example with the PKCE extension run:
+
+This is the recommended flow for web and native applications.
 
 `python example\authorization_code_grant_flow_pkce.py`
+
+To run the device code flow example run:
+
+*The device code flow is disabled by default, you must enable it on the app registration*
+
+This is the recommended flow for CLI apps and tools.
+
+`python example\device_code_flow.py`
 
 To run the implicit grant flow example run:
 
