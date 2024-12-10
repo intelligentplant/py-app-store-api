@@ -35,13 +35,13 @@ Once you have created and app registration you will need to copy and rename `con
 
 To run the authorization code grant flow example run:
 
-`python example\authorization_code_grant_flow.py`
+`python example/authorization_code_grant_flow.py`
 
 To run the authorization code grant flow example with the PKCE extension run:
 
 This is the recommended flow for web and native applications.
 
-`python example\authorization_code_grant_flow_pkce.py`
+`python example/authorization_code_grant_flow_pkce.py`
 
 To run the device code flow example run:
 
@@ -49,13 +49,13 @@ To run the device code flow example run:
 
 This is the recommended flow for CLI apps and tools.
 
-`python example\device_code_flow.py`
+`python example/device_code_flow.py`
 
 To run the implicit grant flow example run:
 
 *The implicit grant flow is deprecated and is disabled by default*
 
-`python example\implicit_grant_flow.py`
+`python example/implicit_grant_flow.py`
 
 ### Querying a local App Store Connect or Data Core node
 
@@ -64,7 +64,7 @@ If you have an App Store Connect (https://appstore.intelligentplant.com/Home/Dat
 
 Run the example using:
 
-`python example\ntlm_example.py`
+`python example/ntlm_example.py`
 
 ## Example Notebooks
 
@@ -75,3 +75,5 @@ You can find examples of how to use the library to make queries in our Jupyer Hu
 To use this library as part of a Jupyter Notebook join the Jupyter Hub:
 
 https://appstore.intelligentplant.com/Home/AppProfile?appId=40d7a49722f84be4986318bb5cc98cf3
+
+Or you can see an exmaple of using the device code flow to authenticate in Jupyter notebook in `example/Device Code Flow.ipynb`
