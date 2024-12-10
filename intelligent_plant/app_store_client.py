@@ -247,3 +247,99 @@ def get_implicit_grant_flow_url(app_id: str, redirect_url: str, scopes: list[str
     url = base_url + "authorizationserver/oauth/authorize?" + urllib.parse.urlencode(params)
 
     return url
+
+def begin_device_code_flow(app_id: str, app_secret: str = None, scopes: list[str] = None, base_url: str = "https://appstore.intelligentplant.com/") -> json:
+    """
+    Begin the device code OAuth flow. This will return with the device code, user code and validation URI to allow the user to log in to the app store.
+    :param app_id: The ID of the app to authenticate under (found under Developer > Applications > Settings on the app store)
+    :param app_secret: The secret of the app to authenticate under (found under Developer > Applications > Settings on the app store) :warn This should not be published.
+    :param scopes: A list of string that are the scopes the user is granting (e.g. "UserInfo" and "DataRead")
+    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com")
+
+    :return: An object containing the device code, user code, validation URI and polling interval for this instance of the device code flow.
+    
+    :raises: :class:`HTTPError` if an HTTP error occurrs.
+    :raises: :class:`JSONDecodeError` if JSON decoding fails.
+    """
+    url = base_url + "authorizationserver/oauth/authorizedevice"
+
+    body = {
+        'client_id': app_id,
+    }
+
+    if app_secret is not None:
+        body['client_secret'] = app_secret
+
+    if scopes is not None:
+        body['scope'] = " ".join(scopes)
+    
+    r = requests.post(url, data=body)
+
+    r.raise_for_status()
+
+    return r.json()
+
+def fetch_device_token(app_id: str, device_code: str, app_secret: str = None, base_url: str = "https://appstore.intelligentplant.com/") -> json:
+    """
+    Make a request to the token endpoint to see if the user has completed the device code flow.
+    :param app_id: The ID of the app to authenticate under (found under Developer > Applications > Settings on the app store)
+    :param device_code: The device code specified in the reponse of begin_device_code_flow(..)
+    :param app_secret: The secret of the app to authenticate under (found under Developer > Applications > Settings on the app store) :warn This should not be published.
+    
+    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com")
+
+    :return: The access token details (if the user has completed the flow) or an error object indicating that we are still waiting or why the flow has failed.
+    
+    :raises: :class:`HTTPError` if an HTTP error occurrs.
+    :raises: :class:`JSONDecodeError` if JSON decoding fails.
+    """
+    url = base_url + "authorizationserver/oauth/token"
+
+    body = {
+        'client_id': app_id,
+        'device_code': device_code,
+        'grant_type': 'urn:ietf:params:oauth:grant-type:device_code'
+    }
+
+    if app_secret is not None:
+        body['client_secret'] = app_secret
+
+    r = requests.post(url, data=body)
+
+    return r.json()
+
+
+class DeviceCodeFlowError(Exception):
+    def __init__(self, error, error_detail):
+        super().__init__(f'{error}: {error_detail}')
+
+def poll_device_token(app_id: str, device_code: str, interval: int = 5, app_secret: str = None,  base_url: str = "https://appstore.intelligentplant.com/") -> AppStoreClient:
+    """
+    Repeatadly poll the token endpoint until the flow is complete or an unrecoverable error occurs.
+    :param app_id: The ID of the app to authenticate under (found under Developer > Applications > Settings on the app store)
+    :param device_code: The device code specified in the reponse of begin_device_code_flow(..)
+    :param interval: The polling interval specified in the reponse of begin_device_code_flow(..)
+    :param app_secret: The secret of the app to authenticate under (found under Developer > Applications > Settings on the app store) :warn This should not be published.
+    
+    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com")
+
+    :return: The logged in app store client.
+    
+    :raises: :class:`DeviceCodeFlowError` if an unrecoverable error occurs with the flow.
+    :raises: :class:`HTTPError` if an HTTP error occurrs.
+    :raises: :class:`JSONDecodeError` if JSON decoding fails.
+    """
+    while True:
+        time.sleep(interval)
+        token_response = fetch_device_token(app_id, device_code, app_secret=app_secret, base_url=base_url)
+
+        if 'error' in token_response:
+            # an error occurred
+            if token_response['error'] == 'access_denied' or token_response['error'] == 'expired_token':
+                raise DeviceCodeFlowError(token_response['error'], token_response.get('error_description', 'Unspecified'))
+            
+            # in other cases we keep polling
+            # TODO suport the 'slow_down' error
+        else:
+            #this should be the token details
+            return token_details_to_client(token_response, base_url)
