@@ -5,7 +5,6 @@ __docformat__ = 'reStructuredText'
 import json
 
 import intelligent_plant.session_manager as session_manager
-import example.example_queries as example_queries
 
 # Remeber to enable the device code flow in the app store app registration
 

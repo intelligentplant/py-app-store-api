@@ -57,6 +57,28 @@ To run the implicit grant flow example run:
 
 `python example/implicit_grant_flow.py`
 
+#### Saving your session to reduce number of logins
+
+The `intelligent_plant.session_manager` module provides functionality to save your session to your operating systems keyvault using the library [keyring](https://pypi.org/project/keyring/). To use this module you must have keyring installed:
+
+`pip install keyring`
+
+With keyring installed you can now use it as shown in the stored session examples.
+
+Running the stored session example will use the device code flow to authenticate the first time (or if your session expires) but will otherwise use the stored credentials:
+
+`python example/stored_session/stored_session.py`
+
+You can see the stored session values using:
+
+`python example/stored_session/get_stored_session.py`
+
+And you can clear the stored session using:
+
+`python example/stored_session/clear_session.py`
+
+You can also see this being used in a Jupyter notebook in `example/stored_session/jupyter.ipynb`.
+
 ### Querying a local App Store Connect or Data Core node
 
 To run the NTLM (windows authentication) example you will need to have a data core node available on the local network.
@@ -76,4 +98,4 @@ To use this library as part of a Jupyter Notebook join the Jupyter Hub:
 
 https://appstore.intelligentplant.com/Home/AppProfile?appId=40d7a49722f84be4986318bb5cc98cf3
 
-Or you can see an exmaple of using the device code flow to authenticate in Jupyter notebook in `example/Device Code Flow.ipynb`
+
