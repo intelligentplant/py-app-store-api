@@ -7,18 +7,18 @@ from datetime import datetime
 
 # the definition of the tag map type
 # keys should be data source names, values lists of tags to query on that data source
-tag_map = type[dict[str,list[str]]]
+tag_map_t = type[dict[str,list[str]]]
 
 # define type for json response objects, which are either and object (dict) or array (list)
-json = type[dict[str]|list]
+json_t = type[dict[str]|list]
 
 # types of data that can be posted that aren't json
-post_data = type[dict[str,str] | list[tuple[str,str]] | bytes]
+post_data_t = type[dict[str,str] | list[tuple[str,str]] | bytes]
 
 # define time_stamp type as string for relative times and datetime for absolute times
-time_stamp = type[str|datetime]
+time_stamp_t = type[str|datetime]
 
-def format_time_stamp(time_stamp: time_stamp) -> str:
+def format_time_stamp(time_stamp: time_stamp_t) -> str:
     """
     Format a time stamp as an ISO date if possible.
 

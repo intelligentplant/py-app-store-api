@@ -7,7 +7,7 @@ from datetime import datetime
 
 
 import intelligent_plant.http_client as http_client
-from intelligent_plant.type_handler import json, time_stamp, tag_map, format_time_stamp
+from intelligent_plant.type_handler import json_t, time_stamp_t, tag_map_t, format_time_stamp
 
 
 def normalise_tag_map(tags):
@@ -31,7 +31,7 @@ class DataCoreClient(http_client.HttpClient):
         """
         super().__init__(base_url, **kwargs)
     
-    def get_data_sources(self) -> json:
+    def get_data_sources(self) -> json_t:
         """
         Get the list of available data sources
 
@@ -44,7 +44,7 @@ class DataCoreClient(http_client.HttpClient):
         
         return self.get_json('api/data/datasources', params)
 
-    def get_tags(self, dsn: str, page: int = 1, page_size: int = 20, filters: dict = {}) -> json:
+    def get_tags(self, dsn: str, page: int = 1, page_size: int = 20, filters: dict = {}) -> json_t:
         """
         Search the provided data source fo tags.
 
@@ -65,7 +65,7 @@ class DataCoreClient(http_client.HttpClient):
         
         return self.get_json(urlparse.urljoin('api/data/tags/', dsn), params)
 
-    def get_snapshot_data(self, tags: tag_map) -> json:
+    def get_snapshot_data(self, tags: tag_map_t) -> json_t:
         """
         Get the snapshot values of the provided tags.
 
@@ -78,7 +78,7 @@ class DataCoreClient(http_client.HttpClient):
         """
         return self.post_json('api/data/v2/snapshot', json={"tags": normalise_tag_map(tags)})
 
-    def get_raw_data(self, tags: tag_map, start_time: time_stamp, end_time: time_stamp, point_count: int) -> json:
+    def get_raw_data(self, tags: tag_map_t, start_time: time_stamp_t, end_time: time_stamp_t, point_count: int) -> json_t:
         """
         Get raw data for the provided tags.
 
@@ -101,7 +101,7 @@ class DataCoreClient(http_client.HttpClient):
 
         return self.post_json('api/data/v2/raw', json=req)
 
-    def get_plot_data(self, tags: tag_map, start_time: time_stamp, end_time: time_stamp, intervals: int) -> json:
+    def get_plot_data(self, tags: tag_map_t, start_time: time_stamp_t, end_time: time_stamp_t, intervals: int) -> json_t:
         """
         Get raw data for the provided tags.
 
@@ -124,7 +124,7 @@ class DataCoreClient(http_client.HttpClient):
 
         return self.post_json('api/data/v2/plot', json=req)
 
-    def get_processed_data(self, tags: tag_map, start_time: time_stamp, end_time: time_stamp, sample_interval: str, data_function: str) -> json:
+    def get_processed_data(self, tags: tag_map_t, start_time: time_stamp_t, end_time: time_stamp_t, sample_interval: str, data_function: str) -> json_t:
         """
         Get processed data for the provided tags.
 
@@ -149,7 +149,7 @@ class DataCoreClient(http_client.HttpClient):
 
         return self.post_json('api/data/v2/processed', json=req)
 
-    def get_data_at_times(self, tags: tag_map, utc_sample_times: list[time_stamp]) -> json:
+    def get_data_at_times(self, tags: tag_map_t, utc_sample_times: list[time_stamp_t]) -> json_t:
         """
         Get the value of the provided tags at the specified times.
 
@@ -166,9 +166,9 @@ class DataCoreClient(http_client.HttpClient):
             "utcSampleTimes": list(map(format_time_stamp, utc_sample_times))
         }
 
-        return self.post_json('api/data/v2/history-at-times', json=req)
+        return self.post_json('api/data/v2/values-at-times', json=req)
 
-    def write_snapshot_values(self, dsn: str, values: list[dict]) -> json:
+    def write_snapshot_values(self, dsn: str, values: list[dict]) -> json_t:
         """
         Write a set of tag values into the specified datasource.
 
@@ -183,7 +183,7 @@ class DataCoreClient(http_client.HttpClient):
 
         return self.put_json(urlparse.urljoin('api/data/v2/snapshot/', dsn), json=values)
 
-    def write_historical_values(self, dsn: str, values: list[dict]) -> json:
+    def write_historical_values(self, dsn: str, values: list[dict]) -> json_t:
         """
         Write a set of tag values into the specified datasource.
         :param dsn: The data source name the values are to be written to.
@@ -197,7 +197,7 @@ class DataCoreClient(http_client.HttpClient):
 
         return self.put_json(urlparse.urljoin('api/data/v2/history/', dsn), json=values)
 
-    def create_tag(self, dsn: str, tag_definition: dict) -> json:
+    def create_tag(self, dsn: str, tag_definition: dict) -> json_t:
         """
         Create a new tag in the specified data source.
         :param dsn: The data source name where the new tag should be created.
@@ -210,7 +210,7 @@ class DataCoreClient(http_client.HttpClient):
         """
         return self.put_json(urlparse.urljoin('api/configuration/tags/', dsn), json=tag_definition)
     
-    def get_annotations(self, dsn: str, tags: list[str], start_time: time_stamp, end_time: time_stamp) -> json:
+    def get_annotations(self, dsn: str, tags: list[str], start_time: time_stamp_t, end_time: time_stamp_t) -> json_t:
         """
         Get annotations for the specifed tags on the specified data source within the time range.
         :param dsn: The data source to query for annotations.
@@ -231,7 +231,7 @@ class DataCoreClient(http_client.HttpClient):
         }
         return self.post_json('api/data/annotations/', json=annotation_request)
     
-    def write_annotation(self, dsn: str, annotation: dict) -> json:
+    def write_annotation(self, dsn: str, annotation: dict) -> json_t:
         """
         Write an annotation to a data source.
         :param dsn: The data source name where the new annotation should be created.
@@ -244,7 +244,7 @@ class DataCoreClient(http_client.HttpClient):
         """
         return self.post_json(urlparse.urljoin('api/data/annotations/', dsn), json=annotation)
 
-    def update_annotation(self, dsn: str, annotation: dict) -> json:
+    def update_annotation(self, dsn: str, annotation: dict) -> json_t:
         """
         Update an annotation on the data source.
         :param dsn: The data source name where the new annotation should be created.

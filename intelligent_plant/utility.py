@@ -8,11 +8,11 @@ from datetime import datetime, timezone
 
 import pandas as pd
 
-from intelligent_plant.type_handler import time_stamp, json, format_time_stamp
+from intelligent_plant.type_handler import time_stamp_t, json_t, format_time_stamp
 
 property_collection = type[dict[str,dict[str]]]
 
-def query_result_to_data_frame(result: json, include_dsn: bool = False, force_numeric: bool = False, force_string: bool = False) -> pd.DataFrame:
+def query_result_to_data_frame(result: json_t, include_dsn: bool = False, force_numeric: bool = False, force_string: bool = False) -> pd.DataFrame:
     """Convert the result of a data query into a data frame
        warn: this assumes that the timestamps for eachtag match (i.e. this won't work properly for raw queries)
        :param result: The parsed JSON result object. seealso: data_core_clinet.DataCoreClient.get_data(..)
@@ -21,7 +21,7 @@ def query_result_to_data_frame(result: json, include_dsn: bool = False, force_nu
        :param force_string: Force string values to be taken over numeric values. Default: False
        :return: A data frame with the queried tags as column headers and a row for each data point returned.
     """
-    frame_data = {}
+    frame_data = []
     
 
     assert not (bool(force_numeric) and bool(force_string)), f'At most one of force_numeric or force_string can be set. Numeric: {force_numeric}, String: {force_string}' 
@@ -36,14 +36,15 @@ def query_result_to_data_frame(result: json, include_dsn: bool = False, force_nu
             
             time_stamps = list(map(lambda x: pd.Timestamp(x["UtcSampleTime"]), tag_data["Values"]))
             selected_values = list(map(lambda x: float(x["NumericValue"]) if (force_numeric or x["IsNumeric"]) and (not force_string) else x["TextValue"], tag_data["Values"]))
-            values = pd.Series(selected_values, index=time_stamps)
+            values = pd.Series(selected_values, index=time_stamps, name=name)
 
-            frame_data[name] = values
-    
-    
+            frame_data.append(values)
+
+    return pd.concat(frame_data, axis=1)
+    print(frame_data)
     return pd.DataFrame(frame_data)
 
-def construct_tag_value(tag_name: str, utc_sample_time: time_stamp = None, numeric_value: float = None, text_value: str = None, status: str = 'Good', unit: str = '', notes = None, error = None, properties: property_collection = {}) -> dict[str]:
+def construct_tag_value(tag_name: str, utc_sample_time: time_stamp_t = None, numeric_value: float = None, text_value: str = None, status: str = 'Good', unit: str = '', notes = None, error = None, properties: property_collection = {}) -> dict[str]:
     """Construct a tag value object for use with the write_tag_value_snapshot(..) or write_tag_value_historical(..) functions
 
        :param tag_name: The pname of the tag to write to.

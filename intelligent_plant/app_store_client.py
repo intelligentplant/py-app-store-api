@@ -3,7 +3,7 @@ __author__ = "Ross Kelso"
 __docformat__ = 'reStructuredText'
 
 import time
-
+import json
 import urllib
 
 import requests
@@ -11,20 +11,22 @@ import requests
 import intelligent_plant.data_core_client as data_core_client
 import intelligent_plant.http_client as http_client
 
-from intelligent_plant.http_client import json
+from intelligent_plant.http_client import json_t
+
+DEFAULT_BASE_URL = "https://appstore.intelligentplant.com/"
 
 class AppStoreClient(http_client.HttpClient):
     """Access the Intelligent Plant Appstore API"""
 
-    def __init__(self, access_token: str, refresh_token: str = None, expires_in: int = None, base_url: str = "https://appstore.intelligentplant.com/", **kwargs):
-        """
+    def __init__(self, access_token: str, refresh_token: str = None, expires_in: int = None, base_url: str = DEFAULT_BASE_URL, **kwargs):
+        f"""
         Initialise an App Store Client
         :param access_token: The access token used to authenticate this client. 
             Get this by using the authorization code c#grant flow (for web servers) or
             the implicit grant flow (for clients e.g. native apps, JS web clients, Jupyter Notebook)
             Examples of this can be found in the "examples" folder and Jupyter notebook.
         :param refresh_token: The refresh token for this client (currently unused).
-        :param base_url: The URL of the app store (optional, default value is "https://appstore.intelligentplant.com/").
+        :param base_url: The URL of the app store (optional, default value is {DEFAULT_BASE_URL}).
 
         :return: An app store client that uses the provided access token for authorization.
         """
@@ -36,7 +38,10 @@ class AppStoreClient(http_client.HttpClient):
         else:
             self.expiry_time = time.time() + expires_in
 
-        http_client.HttpClient.__init__(self, base_url, authorization_header ="Bearer " + self.access_token, **kwargs)
+        if self.access_token is not None:
+            http_client.HttpClient.__init__(self, base_url, authorization_header = "Bearer " + self.access_token, **kwargs)
+        else:
+            http_client.HttpClient.__init__(self, base_url, **kwargs)
 
     def get_data_core_client(self, *args, **kwargs):
         """
@@ -48,7 +53,7 @@ class AppStoreClient(http_client.HttpClient):
         kwargs['authorization_header'] = "Bearer " + self.access_token
         return data_core_client.DataCoreClient(*args, **kwargs)
 
-    def get_user_info(self) -> json:
+    def get_user_info(self) -> json_t:
         """
         Get the authenticated user's user info from the app store.
 
@@ -59,7 +64,7 @@ class AppStoreClient(http_client.HttpClient):
         """
         return self.get_json("api/resource/userinfo")
 
-    def get_user_balance(self) -> json:
+    def get_user_balance(self) -> json_t:
         """
         Get the authenticated user's balance of credits.
 
@@ -70,7 +75,7 @@ class AppStoreClient(http_client.HttpClient):
         """
         return float(self.get_text("api/resource/userbalance"))
 
-    def debit_account(self, amount: int) -> json:
+    def debit_account(self, amount: int) -> json_t:
         """
         Debit the user's app store account.
         :param amount: The number of credits that should be debited from the user's account.
@@ -86,7 +91,7 @@ class AppStoreClient(http_client.HttpClient):
 
         return self.post_json("api/resource/debit", params=params)
 
-    def refund_account(self, transaction_ref: str) -> json:
+    def refund_account(self, transaction_ref: str) -> json_t:
         """
         Refund a transaction
         :param transaction_ref: The transaction reference of the transation you want to refund.
@@ -126,13 +131,26 @@ class AppStoreClient(http_client.HttpClient):
         token_details = r.json()
 
         return token_details_to_client(token_details, self.base_url)
+
+    def to_json(self) -> str:
+        """
+        Convert this app store client to a json representation including the access token, refresh token, expiry time and base url.
+
+        :return: JSON string representing this app store client. 
+        """
+        return json.dumps({
+            'access_token': self.access_token,
+            'refresh_token': self.refresh_token,
+            'expiry_time': self.expiry_time,
+            'base_url': self.base_url
+        })
                     
 
-def token_details_to_client(token_details: dict[str,str], base_url: str = "https://appstore.intelligentplant.com/") -> AppStoreClient:
-    """
+def token_details_to_client(token_details: dict[str,str], base_url: str = DEFAULT_BASE_URL) -> AppStoreClient:
+    f"""
     Convert access token details as provided by the app store API into an AppStoreClient.
     :param token_details: The token details as requested from the API.
-    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com/")
+    :param base_url: The app store base url (optional, default value is {DEFAULT_BASE_URL})
 
     :return: An instance of AppStoreClient using the speicifed acccess token.
     """
@@ -142,8 +160,23 @@ def token_details_to_client(token_details: dict[str,str], base_url: str = "https
 
     return AppStoreClient(access_token, refresh_token, expires_in, base_url)
 
-def get_authorization_code_grant_flow_url(app_id: str, redirect_uri: str, scopes: list[str], code_challenge: str = None, code_challenge_method: str = None, state: str = None, access_type: str = None, base_url: str = "https://appstore.intelligentplant.com/") -> str:
+def from_json(json_str: str) -> AppStoreClient:
     """
+    Convert a JSON representation of an app store client session to an app store client object.
+
+    :param json_str: A string containing JSON that encodes the access token, refresh token, base url and expiry time of the session.
+
+    :return: An instance of AppStoreClient with the speficied properties.
+    """
+    json_obj = json.loads(json_str)
+    app_store = AppStoreClient(json_obj.get('access_token', None), json_obj.get('refresh_token', None), base_url=json_obj.get('base_url', None))
+
+    app_store.expiry_time = json_obj.get('expiry_time', None)
+
+    return app_store
+
+def get_authorization_code_grant_flow_url(app_id: str, redirect_uri: str, scopes: list[str], code_challenge: str = None, code_challenge_method: str = None, state: str = None, access_type: str = None, base_url: str = DEFAULT_BASE_URL) -> str:
+    f"""
     Get the url that the client should use for authorization code grant flow
     This grant flow should be used by web servers as it requires the app secret (which should not be made public).
     For information on the authorisation flow see: https://appstore.intelligentplant.com/wiki/doku.php?id=dev:app_store_developers
@@ -154,7 +187,7 @@ def get_authorization_code_grant_flow_url(app_id: str, redirect_uri: str, scopes
     :param scopes: A list of string that are the scopes the user is granting (e.g. "UserInfo" and "DataRead")
     :param state: The OAuth state parameter. This can be used to prevent cross site request forgery or track application state (Optional).
     :param access_type: Set the access type to "offline" to enable refresh tokens (Optional).
-    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com/")
+    :param base_url: The app store base url (optional, default value is {DEFAULT_BASE_URL})
 
     :return: The URL that the user should be redirected to to log in.
     """
@@ -181,8 +214,8 @@ def get_authorization_code_grant_flow_url(app_id: str, redirect_uri: str, scopes
 
     return url
 
-def complete_authorization_code_grant_flow(auth_code: str, app_id: str, app_secret: str, redirect_uri: str, code_verifier: str = None, base_url: str = "https://appstore.intelligentplant.com/") -> AppStoreClient:
-    """
+def complete_authorization_code_grant_flow(auth_code: str, app_id: str, app_secret: str, redirect_uri: str, code_verifier: str = None, base_url: str = DEFAULT_BASE_URL) -> AppStoreClient:
+    f"""
     Complete logging in the user using authroization grant flow
     This grant flow should be used by web servers as it requires the app secret (which should not be made public).
     For information on the authorisation flow see: https://appstore.intelligentplant.com/wiki/doku.php?id=dev:app_store_developers
@@ -192,7 +225,7 @@ def complete_authorization_code_grant_flow(auth_code: str, app_id: str, app_secr
     :param redirect_uri: An authorized redirect URI in the app developer settings
     :param code_verifier: The code verifier that was used to generate the code_challenge in the first step of the flow
 
-    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com/")
+    :param base_url: The app store base url (optional, default value is {DEFAULT_BASE_URL})
 
     :return: An app store client with the access token specified
     """
@@ -219,8 +252,8 @@ def complete_authorization_code_grant_flow(auth_code: str, app_id: str, app_secr
 
     return token_details_to_client(token_details, base_url)
   
-def get_implicit_grant_flow_url(app_id: str, redirect_url: str, scopes: list[str], state: str = None, base_url: str = "https://appstore.intelligentplant.com/") -> str:
-    """
+def get_implicit_grant_flow_url(app_id: str, redirect_url: str, scopes: list[str], state: str = None, base_url: str = DEFAULT_BASE_URL) -> str:
+    f"""
     Get the url that the client should use for implicit grant flow.
     This grant flow can be used by native applications and clients, as it doesn't require the app secret.
     For security reasons the PKCE grant flow is recommended over the implicit grant flow.
@@ -230,7 +263,7 @@ def get_implicit_grant_flow_url(app_id: str, redirect_url: str, scopes: list[str
     :param scopes: A list of string that are the scopes the user is granting (e.g. "UserInfo" and "DataRead")
     :param state: The OAuth state parameter. This can be used to prevent cross site request forgery or track application state (Optional).
 
-    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com")
+    :param base_url: The app store base url (optional, default value is {DEFAULT_BASE_URL})
 
     :return: The URL that the user should be redirected to to log in.
     """
@@ -248,13 +281,13 @@ def get_implicit_grant_flow_url(app_id: str, redirect_url: str, scopes: list[str
 
     return url
 
-def begin_device_code_flow(app_id: str, app_secret: str = None, scopes: list[str] = None, base_url: str = "https://appstore.intelligentplant.com/") -> json:
-    """
+def begin_device_code_flow(app_id: str, app_secret: str = None, scopes: list[str] = None, base_url: str = DEFAULT_BASE_URL) -> json_t:
+    f"""
     Begin the device code OAuth flow. This will return with the device code, user code and validation URI to allow the user to log in to the app store.
     :param app_id: The ID of the app to authenticate under (found under Developer > Applications > Settings on the app store)
     :param app_secret: The secret of the app to authenticate under (found under Developer > Applications > Settings on the app store) :warn This should not be published.
     :param scopes: A list of string that are the scopes the user is granting (e.g. "UserInfo" and "DataRead")
-    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com")
+    :param base_url: The app store base url (optional, default value is {DEFAULT_BASE_URL})
 
     :return: An object containing the device code, user code, validation URI and polling interval for this instance of the device code flow.
     
@@ -279,14 +312,14 @@ def begin_device_code_flow(app_id: str, app_secret: str = None, scopes: list[str
 
     return r.json()
 
-def fetch_device_token(app_id: str, device_code: str, app_secret: str = None, base_url: str = "https://appstore.intelligentplant.com/") -> json:
-    """
+def fetch_device_token(app_id: str, device_code: str, app_secret: str = None, base_url: str = DEFAULT_BASE_URL) -> json_t:
+    f"""
     Make a request to the token endpoint to see if the user has completed the device code flow.
     :param app_id: The ID of the app to authenticate under (found under Developer > Applications > Settings on the app store)
     :param device_code: The device code specified in the reponse of begin_device_code_flow(..)
     :param app_secret: The secret of the app to authenticate under (found under Developer > Applications > Settings on the app store) :warn This should not be published.
-    
-    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com")
+    :param scopes: A list of string that are the scopes the user is granting (e.g. "UserInfo" and "DataRead")
+    :param base_url: The app store base url (optional, default value is {DEFAULT_BASE_URL})
 
     :return: The access token details (if the user has completed the flow) or an error object indicating that we are still waiting or why the flow has failed.
     
@@ -313,15 +346,15 @@ class DeviceCodeFlowError(Exception):
     def __init__(self, error, error_detail):
         super().__init__(f'{error}: {error_detail}')
 
-def poll_device_token(app_id: str, device_code: str, interval: int = 5, app_secret: str = None,  base_url: str = "https://appstore.intelligentplant.com/") -> AppStoreClient:
-    """
-    Repeatadly poll the token endpoint until the flow is complete or an unrecoverable error occurs.
+def poll_device_token(app_id: str, device_code: str, interval: int = 5, app_secret: str = None,  base_url: str = DEFAULT_BASE_URL) -> AppStoreClient:
+    f"""
+    Repeatedly poll the token endpoint until the flow is complete or an unrecoverable error occurs.
     :param app_id: The ID of the app to authenticate under (found under Developer > Applications > Settings on the app store)
     :param device_code: The device code specified in the reponse of begin_device_code_flow(..)
     :param interval: The polling interval specified in the reponse of begin_device_code_flow(..)
     :param app_secret: The secret of the app to authenticate under (found under Developer > Applications > Settings on the app store) :warn This should not be published.
     
-    :param base_url: The app store base url (optional, default value is "https://appstore.intelligentplant.com")
+    :param base_url: The app store base url (optional, default value is {DEFAULT_BASE_URL})
 
     :return: The logged in app store client.
     
@@ -343,3 +376,26 @@ def poll_device_token(app_id: str, device_code: str, interval: int = 5, app_secr
         else:
             #this should be the token details
             return token_details_to_client(token_response, base_url)
+        
+def device_code_login(app_id: str, app_secret: str = None, scopes: list[str] = None, base_url: str = DEFAULT_BASE_URL) -> AppStoreClient:
+    f"""
+    Login to the Industrial App Store using the device code flow.
+    :param app_id: The ID of the app to authenticate under (found under Developer > Applications > Settings on the app store)
+    :param device_code: The device code specified in the reponse of begin_device_code_flow(..)
+    :param app_secret: The secret of the app to authenticate under (found under Developer > Applications > Settings on the app store) :warn This should not be published.
+    :param scopes: A list of string that are the scopes the user is granting (e.g. "UserInfo" and "DataRead")
+    :param base_url: The app store base url (optional, default value is {DEFAULT_BASE_URL})
+
+    :return: The logged in app store client.
+    
+    :raises: :class:`DeviceCodeFlowError` if an unrecoverable error occurs with the flow.
+    :raises: :class:`HTTPError` if an HTTP error occurrs.
+    :raises: :class:`JSONDecodeError` if JSON decoding fails.
+    """
+    authorize_response = begin_device_code_flow(app_id, app_secret=app_secret, scopes=scopes, base_url=base_url)
+
+    print(f"To login go here: {authorize_response['verification_uri']} and enter this code: {authorize_response['user_code']}")
+
+    app_store = poll_device_token(app_id, authorize_response['device_code'], authorize_response['interval'], app_secret=app_secret)
+
+    return app_store

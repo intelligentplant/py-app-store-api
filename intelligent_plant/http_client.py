@@ -7,7 +7,7 @@ import urllib.parse as urlparse
 import requests
 from requests import Response
 
-from intelligent_plant.type_handler import json, post_data
+from intelligent_plant.type_handler import json_t, post_data_t
 
 class HttpClient(object):
     """A base HTTP client that has an authorization header and base url"""
@@ -51,7 +51,7 @@ class HttpClient(object):
         return r
 
 
-    def post(self, path: str, params: dict[str,str] = None, data: post_data = None, json: json = None) -> Response:
+    def post(self, path: str, params: dict[str,str] = None, data: post_data_t = None, json: json_t = None) -> Response:
         """
         Make a POST request to the specified path (relative to the client base url), with the specified parameters
         :param path: The path to the target endpoint.
@@ -72,7 +72,7 @@ class HttpClient(object):
 
         return r
 
-    def put(self, path: str, params: dict[str,str] = None, data: post_data = None, json: json = None) -> Response:
+    def put(self, path: str, params: dict[str,str] = None, data: post_data_t = None, json: json_t = None) -> Response:
         """
         Make a PUT request to the specified path (relative to the client base url), with the specified parameters
         :param path: The path to the target endpoint.
@@ -94,7 +94,7 @@ class HttpClient(object):
 
         return r
 
-    def get_json(self, path: str, params: dict[str,str] = None) -> json:
+    def get_json(self, path: str, params: dict[str,str] = None) -> json_t:
         """
         Make a GET request to the specified path (relative to the client base url), with the specified parameters
         This method additionally parses the JSON response object.
@@ -124,7 +124,7 @@ class HttpClient(object):
         """
         return self.get(path, params).text
 
-    def post_text(self, path: str, params: dict[str,str] = None, data: post_data = None) -> str:
+    def post_text(self, path: str, params: dict[str,str] = None, data: post_data_t = None) -> str:
         """
         Make a POST request to the specified path (relative to the client base url), with the specified parameters
         This method returns the response content as text
@@ -139,7 +139,7 @@ class HttpClient(object):
         """
         return self.post(path, params=params, data=data).text
 
-    def post_json(self, path: str, params: dict[str,str] = None, data: post_data = None, json: json = None) -> json:
+    def post_json(self, path: str, params: dict[str,str] = None, data: post_data_t = None, json: json_t = None) -> json_t:
         """
         Make a POST request to the specified path (relative to the client base url), with the specified parameters
         This method returns parses the reponse body as JSON.
@@ -156,7 +156,7 @@ class HttpClient(object):
         """
         return self.post(path, params=params, data=data, json=json).json()
 
-    def put_json(self, path: str, params: dict[str,str] = None, data: post_data = None, json: json = None) -> json:
+    def put_json(self, path: str, params: dict[str,str] = None, data: post_data_t = None, json: json_t = None) -> json_t:
         """
         Make a PUT request to the specified path (relative to the client base url), with the specified parameters
         This method returns parses the reponse body as JSON.

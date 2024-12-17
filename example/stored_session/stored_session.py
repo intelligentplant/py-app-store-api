@@ -1,10 +1,11 @@
-"""A client app that uses the device code flow"""
+"""A client app that uses the device code flow and stores its session with keyring"""
 __author__ = "Ross Kelso"
 __docformat__ = 'reStructuredText'
 
 import json
 
-import intelligent_plant.app_store_client as app_store_client
+import intelligent_plant.session_manager as session_manager
+import example.example_queries as example_queries
 
 # Remeber to enable the device code flow in the app store app registration
 
@@ -17,7 +18,7 @@ with open('config.json') as json_config_file:
     base_url = config['app_store']['base_url']
 
 
-app_store = app_store_client.device_code_login(app_id, scopes=['DataRead'], app_secret=app_secret)
+app_store = session_manager.load_session_or_login(app_id, app_secret, scopes=['DataRead'], base_url=base_url)
 
 data_core = app_store.get_data_core_client()
 

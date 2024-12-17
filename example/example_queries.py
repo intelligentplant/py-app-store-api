@@ -18,12 +18,12 @@ def app_store_queries(app_store):
     print(app_store.get_user_info())
 
     #debit 1 credit from the account
-    ref = app_store.debit_account(1)
+    # ref = app_store.debit_account(1)
 
-    print(ref)
+    # print(ref)
 
     #refund the transaction
-    app_store.refund_account(ref)
+    # app_store.refund_account(ref)
 
 def data_source(data_core):
     """
