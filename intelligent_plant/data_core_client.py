@@ -83,8 +83,8 @@ class DataCoreClient(http_client.HttpClient):
         Get raw data for the provided tags.
 
         :param tags: A dictionary where the keys are the fully qualified data source names and the values are lists of tags.
-        :param start_time: The absolute or relative quiery start time.
-        :param end_time: The absolute or relative quiery end time.
+        :param start_time: The absolute or relative query start time.
+        :param end_time: The absolute or relative query end time.
         :param point_count: The maximum number of point to return. Set to 0 for as many as possible.
 
         :return: A dictionary of data source names, containg dictionarys of tag names whos values are historical tag values.
@@ -103,11 +103,11 @@ class DataCoreClient(http_client.HttpClient):
 
     def get_plot_data(self, tags: tag_map_t, start_time: time_stamp_t, end_time: time_stamp_t, intervals: int) -> json_t:
         """
-        Get raw data for the provided tags.
+        Get plot data for the provided tags.
 
         :param tags: A dictionary where the keys are the fully qualified data source names and the values are lists of tags.
-        :param start_time: The absolute or relative quiery start time.
-        :param end_time: The absolute or relative quiery end time.
+        :param start_time: The absolute or relative query start time.
+        :param end_time: The absolute or relative query end time.
         :param intervals: How many intervals to divide the rtequest range into. Must be greater than 0
 
         :return: A dictionary of data source names, containg dictionarys of tag names whos values are historical tag values.
@@ -129,8 +129,8 @@ class DataCoreClient(http_client.HttpClient):
         Get processed data for the provided tags.
 
         :param tags: A dictionary where the keys are the fully qualified data source names and the values are lists of tags.
-        :param start_time: The absolute or relative quiery start time.
-        :param end_time: The absolute or relative quiery end time.
+        :param start_time: The absolute or relative query start time.
+        :param end_time: The absolute or relative query end time.
         :param sample_interval: The length of a sample interval
         :param data_function: The data function to use. Normal values are "interp", "avg", "min" and "max"
 
