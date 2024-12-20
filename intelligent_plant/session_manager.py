@@ -85,7 +85,7 @@ def load_session_or_login(app_id: str, app_secret: str = None, scopes: list[str]
         if app_store.expiry_time < time.time():
             # sesion has expired attempt to refresh
             try:
-                app_store.refresh_session(app_id, app_secret)
+                app_store = app_store.refresh_session(app_id, app_secret)
             except:
                 # refesh failed send the user to the login page
                 app_store = app_store_client.device_code_login(app_id, app_secret, scopes, base_url)
