@@ -33,6 +33,8 @@ In order to query the industrial app store you must register as a developer and 
 
 Once you have created and app registration you will need to copy and rename `config-example.json` to `config.json` and populate the `id` and `secret` fields with you app ID and app secret.
 
+#### Authorization Code Grant Flow (Web and Native Apps)
+
 To run the authorization code grant flow example run:
 
 `python example/authorization_code_grant_flow.py`
@@ -43,13 +45,17 @@ This is the recommended flow for web and native applications.
 
 `python example/authorization_code_grant_flow_pkce.py`
 
-To run the device code flow example run:
+#### Device Code Flow (Embedded Devices, Data Science Environments and Scripts)
 
 *The device code flow is disabled by default, you must enable it on the app registration*
+
+To run the device code flow example run:
 
 This is the recommended flow for CLI apps and tools.
 
 `python example/device_code_flow.py`
+
+#### Implicit Grant Flow (Deprecated)
 
 To run the implicit grant flow example run:
 
@@ -79,7 +85,7 @@ And you can clear the stored session using:
 
 You can also see this being used in a Jupyter notebook in `example/stored_session/jupyter.ipynb`.
 
-### Querying a local App Store Connect or Data Core node
+### Querying a local App Store Connect or Data Core node (On Site Installations)
 
 To run the NTLM (windows authentication) example you will need to have a data core node available on the local network.
 If you have an App Store Connect (https://appstore.intelligentplant.com/Home/DataSources) installed locally you can run the example without modification. If you are trying to authenticate with a data core node you will need to change the `base_url` variable defined in the script to match the URL of the Data Core admin UI.
@@ -87,15 +93,5 @@ If you have an App Store Connect (https://appstore.intelligentplant.com/Home/Dat
 Run the example using:
 
 `python example/ntlm_example.py`
-
-## Example Notebooks
-
-You can find examples of how to use the library to make queries in our Jupyer Hub demo notebooks (these notebooks expect a valid Industrial App Store access token to be present in the `ACCESS_TOKEN` environment variable).
-
-[https://github.com/intelligentplant/jupyter-hub-demo/tree/master/Python](https://github.com/intelligentplant/jupyter-hub-demo/tree/master/Python)
-
-To use this library as part of a Jupyter Notebook join the Jupyter Hub:
-
-https://appstore.intelligentplant.com/Home/AppProfile?appId=40d7a49722f84be4986318bb5cc98cf3
 
 
