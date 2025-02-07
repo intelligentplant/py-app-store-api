@@ -65,7 +65,7 @@ To run the device code flow example run:
 This is the recommended flow for CLI apps and tools.
 
 ```bash
-python example/device_code_flow.py`
+python example/device_code_flow.py
 ```
 
 If you want to query data from Jupyter lab for use with data visualistion, data analysis and machine learning libraries we recommend using the device code flow and a stored session (see below).
