@@ -38,9 +38,15 @@ pip install -r example-requirements.txt
 
 In order to query the industrial app store you must register as a developer and create an app registration. Full instructions can be found here: [https://wiki.intelligentplant.com/doku.php?id=dev:app_store_developers](https://wiki.intelligentplant.com/doku.php?id=dev:app_store_developers)
 
-Once you have created and app registration you will need to copy and rename `config-example.json` to `config.json` and populate the `id` and `secret` fields with you app ID and app secret.
+Once you have created and app registration you will need to copy and rename `config-example.json` to `config.json` and populate the `id` field with you app ID. The `secret` field should be set if you have a confidential client.
+
+For examples of these OAuth flows in practice you can use the [OAuth Playground](https://www.oauth.com/playground/index.html).
 
 ### Authorization Code Grant Flow (Web and Native Apps)
+
+For the authorization grant flow you will need to set a redirect URL in your app registration. The example scripts use `http://localhost:8080/auth`.
+
+These authorization code grant flow examples are minimal proof of concepts. They should not be the basis of a production app since they have no user session management, there is a single globally logged in user.
 
 To run the authorization code grant flow example with the PKCE extension run:
 
