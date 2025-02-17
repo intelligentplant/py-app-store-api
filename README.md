@@ -44,6 +44,8 @@ For examples of these OAuth flows in practice you can use the [OAuth Playground]
 
 ### Authorization Code Grant Flow (Web and Native Apps)
 
+You can find an example of the authorization code grant flow for a django web app here: [https://github.com/intelligentplant/py-django-example](https://github.com/intelligentplant/py-django-example)
+
 For the authorization grant flow you will need to set a redirect URL in your app registration. The example scripts use `http://localhost:8080/auth`.
 
 These authorization code grant flow examples are minimal proof of concepts. They should not be the basis of a production app since they have no user session management, there is a single globally logged in user.
