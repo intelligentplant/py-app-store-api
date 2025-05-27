@@ -7,7 +7,7 @@ setup(
    name='intelligent_plant',
    url="https://github.com/intelligentplant/py-app-store-api",
    version='1.8.2',
-   description='A wrapper for the Intelligent Plant API',
+   description='A wrapper for the Intelligent Plant data API',
    long_description=long_description,
    long_description_content_type="text/markdown",
    author='Intelligent Plant',
