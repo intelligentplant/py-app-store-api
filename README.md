@@ -1,6 +1,8 @@
 # Python App Store API Client
 
-A python implmentation of the Intelligent Plant industrial appstore API client
+A python implmentation of the Intelligent Plant Industrial App Store API client.
+
+Use python to query your industrial process data in real-time. 
 
 # Installation
 
